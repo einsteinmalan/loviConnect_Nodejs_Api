@@ -1,0 +1,1 @@
+export const jwtSecret = "2020matcha42lpancchi";
