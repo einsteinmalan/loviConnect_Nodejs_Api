@@ -11,5 +11,6 @@ export async function authSocket(token){
 
     }catch(err){
         return {error: 'Token is not valid'};
+        
     }
 }

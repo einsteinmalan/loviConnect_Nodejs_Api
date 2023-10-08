@@ -4,9 +4,10 @@ const util = require('util');
 const connection = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: 'rootroot',
-    database: 'matcha',
+    password: 'root',
+    database: 'loviConnect',
     connectionLimit: 10,
+    port: 8889,
     dateStrings : true,
     multipleStatements: true
 });
