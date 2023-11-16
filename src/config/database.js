@@ -5,9 +5,8 @@ const connection = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'loviConnect',
+    database: 'lovichat',
     connectionLimit: 10,
-    port: 8889,
     dateStrings : true,
     multipleStatements: true
 });

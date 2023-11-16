@@ -8,8 +8,8 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
-CREATE DATABASE IF NOT EXISTS `loviConnect` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `loviConnect`;
+CREATE DATABASE IF NOT EXISTS `lovichat` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `lovichat`;
 
 CREATE TABLE IF NOT EXISTS `blocks` (
   `id_block` int(11) NOT NULL AUTO_INCREMENT,
@@ -41,21 +41,53 @@ CREATE TABLE IF NOT EXISTS `interests` (
   KEY `id_interest` (`id_interest`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 
+-- RATHER: (What user don't like the most)
 INSERT INTO `interests` (`id_interest`, `interest`) VALUES
-(1, 'Travel'),
-(2, 'Sports'),
-(3, 'Arts'),
-(4, 'Films'),
-(5, 'Music'),
-(6, 'Animals'),
-(7, 'Dance'),
-(8, 'Outdoors'),
-(9, 'Food'),
-(10, 'Books'),
-(11, 'Programming'),
-(12, 'Creative'),
-(13, 'Languages'),
-(14, 'Stargazing');
+(1, 'Dishonesty'),
+(2, 'Poor communication'),
+(3, 'Constant criticism'),
+(4, 'Jealousy'),
+(5, 'Ignoring boundaries'),
+(6, 'Unwillingness to compromise'),
+(7, 'Being manipulative'),
+(8, 'Bad personal hygiene'),
+(9, 'Financial irresponsibility'),
+(10, 'Excessive dependency'),
+(11, 'Anger issue'),
+(12, 'Irresponsibility'),
+(13, 'Disrespecting'),
+(14, 'Being abusive');
+(15, 'Unwillingness to try new things');
+(16, 'Refusal to compromise');
+(17, 'Self-centeredness');
+(18, 'Nagging');
+(19, 'Ignoring emotional needs');
+(20, 'Always seeking validation');
+(21, 'Being glued to devices');
+(22, 'Belittling people'),
+(23, 'Forgetting important dates'),
+(24, 'Childish attitude'),
+(25, 'selfishness'),
+(26, 'Telling lies'),
+(27, 'Being deceitful'),
+(28, 'Stinginess'),
+(29, 'Cheating'),
+(30,'Immaturity'),
+(31, 'Unforgiveness'),
+(32, 'Being vengeful'),
+(33, 'Illiteracy'),
+(34, 'Not good in bed'),
+(35, 'High libido'),
+(36, 'Low libido'),
+(37, 'High body count'),
+(38, 'Poligamy/poliandry'),
+(39, 'Oral sex'),
+(40, 'Anal sex'),
+(41, 'Lack of love for pets'),
+
+
+
+
 
 CREATE TABLE IF NOT EXISTS `likes` (
   `id_likes` int(11) NOT NULL AUTO_INCREMENT,

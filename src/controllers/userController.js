@@ -35,7 +35,7 @@ export async function register(req, res) {
 export async function active(req, res){
     const verifyLink = await userModel.verifyLink(req.params.active_link);
     if (verifyLink)
-        return res.status(200).json({ success: "you account has been activated, you may login now." });
+        return res.status(200).json({ success: "you account has been actived, you may login now." });
     else return res.status(400).json({ error: "active failed" });
 }
 
