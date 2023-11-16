@@ -12,32 +12,30 @@ CREATE DATABASE IF NOT EXISTS `lovichat` DEFAULT CHARACTER SET utf8 COLLATE utf8
 USE `lovichat`;
 
 CREATE TABLE IF NOT EXISTS `blocks` (
-  `id_block` int(11) NOT NULL AUTO_INCREMENT,
+  `id_block` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` int(11) NOT NULL,
   `id_sender` int(11) NOT NULL,
-  `block_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_block`)
+  `block_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `chatrooms` (
-  `id_chatroom` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user_1` int(11) NOT NULL,
-  `id_user_2` int(11) NOT NULL,
-  PRIMARY KEY (`id_chatroom`)
+  `id_chatroom` int(11) NOT NULL PRIMARY KEY,
+  `id_user_1` CHAR(36) NOT NULL ,
+  `id_user_2` CHAR(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `fakes` (
-  `id_fake` int(11) NOT NULL,
-  `id_user` int(11) NOT NULL,
-  `id_sender` int(11) NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_fake`)
+  `id_fake` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_fake` CHAR(36) NOT NULL,
+  `id_user` CHAR(36) NOT NULL,
+  `id_sender` CHAR(36) NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `interests` (
-  `id_interest` int(11) NOT NULL AUTO_INCREMENT,
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_interest` CHAR(36) NOT NULL ,
   `interest` varchar(50) NOT NULL,
-  PRIMARY KEY (`id_interest`),
   KEY `id_interest` (`id_interest`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 
@@ -78,7 +76,7 @@ INSERT INTO `interests` (`id_interest`, `interest`) VALUES
 (33, 'Illiteracy'),
 (34, 'Not good in bed'),
 (35, 'High libido'),
-(36, 'Low libido'),
+(36, 'Low libido'), 
 (37, 'High body count'),
 (38, 'Poligamy/poliandry'),
 (39, 'Oral sex'),
@@ -86,48 +84,42 @@ INSERT INTO `interests` (`id_interest`, `interest`) VALUES
 (41, 'Lack of love for pets'),
 
 
-
-
-
 CREATE TABLE IF NOT EXISTS `likes` (
-  `id_likes` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user` int(11) NOT NULL,
-  `id_sender` int(11) NOT NULL,
-  `like_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_likes`)
+  `id_likes` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_user` CHAR(36) NOT NULL,
+  `id_sender` CHAR(36) NOT NULL,
+  `like_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `messages` (
-  `id_chatroom` int(11) NOT NULL,
-  `id_message` int(11) NOT NULL AUTO_INCREMENT,
-  `id_sender` int(11) NOT NULL,
-  `id_user` int(11) NOT NULL,
+  `id_message` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_chatroom` CHAR(36) NOT NULL,
+  `id_sender` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_user` CHAR(36) NOT NULL,
   `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `message` varchar(1000) NOT NULL,
-  `readed` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`id_message`)
+  `readed` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `notifications` (
-  `id_notif` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user` int(11) DEFAULT NULL,
-  `id_sender` int(11) NOT NULL,
+  `id_notif` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_user` CHAR(36) DEFAULT NULL,
+  `id_sender` CHAR(36) NOT NULL,
   `notification` varchar(25) NOT NULL,
+    `type` ENUM("Personal", "System") NOT NULL DEFAULT "Personal",
   `notif_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `readed` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`id_notif`)
+  `readed` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `pics` (
-  `id_pic` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user` int(11) NOT NULL,
-  `path` varchar(50) NOT NULL,
-  PRIMARY KEY (`id_pic`)
+  `id_pic` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_user` CHAR(36) NOT NULL,
+  `path` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `profiles` (
-  `id_profile` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user` int(11) NOT NULL,
+  `id_profile` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_user` CHAR(36) NOT NULL,
   `gender` varchar(25) DEFAULT NULL,
   `birthday` date DEFAULT NULL,
   `sex_prefer` varchar(25) DEFAULT 'bi',
@@ -136,13 +128,12 @@ CREATE TABLE IF NOT EXISTS `profiles` (
   `location_lon` float NOT NULL,
   `avatar` varchar(255) DEFAULT NULL,
   `fame` int(11) NOT NULL DEFAULT '0',
-  `city` varchar(255) DEFAULT 'Paris',
-  PRIMARY KEY (`id_profile`)
+  `city` varchar(255) DEFAULT 'Paris'
 ) ENGINE=InnoDB AUTO_INCREMENT=1797 DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `users` (
-  `id_user` int(11) NOT NULL AUTO_INCREMENT,
+  `id_user` CHAR(36) NOT NULL PRIMARY KEY ,
   `email` varchar(255) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
@@ -154,7 +145,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `online` tinyint(1) NOT NULL DEFAULT '0',
   `last_login` datetime DEFAULT NULL,
   `creation_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_user`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `active_link` (`active_link`),
@@ -163,11 +153,67 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 
 CREATE TABLE IF NOT EXISTS `users_interests` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user` int(11) NOT NULL,
-  `id_interest` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_user` CHAR(36) NOT NULL,
+  `id_interest` CHAR(36) NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=2869 DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `random_calls` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `user_id` CHAR(36) NOT NULL,
+  `called_id` CHAR(36) NOT NULL,
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=InnoDB AUTO_INCREMENT=2869 DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `invite_datings` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `user_id` CHAR(36) NOT NULL,
+  `invited_id` CHAR(36) NOT NULL,
+  `is_active` INT(1) NOT NULL DEFAULT 0;
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=InnoDB AUTO_INCREMENT=2869 DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `random_call_quotas` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `user_id` CHAR(36) NOT NULL,
+  `quota_left` INT(11) NOT NULL DEFAULT 0,
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=InnoDB AUTO_INCREMENT=2869 DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `invite_datings_quotas` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `user_id` CHAR(36) NOT NULL,
+  `quota_left` INT(11) NOT NULL DEFAULT 0,
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=InnoDB AUTO_INCREMENT=2869 DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `booster` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `user_id` CHAR(36) NOT NULL,
+  `type` ENUM("boost", "super_boost") NOT NULL DEFAULT "boost",
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=InnoDB AUTO_INCREMENT=2869 DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `user_settings` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `user_id` CHAR(36) NOT NULL,
+  `receive_push` ENUM("Yes", "No") NOT NULL DEFAULT "Yes",
+  `allow_random_call` ENUM("Yes", "No") NOT NULL DEFAULT "Yes",
+  `allow_blind_date` ENUM("Yes", "No") NOT NULL DEFAULT "Yes",
+  `hibernate_account` ENUM("Yes", "No") NOT NULL DEFAULT "No",
+  `go_incognito` ENUM("Yes", "No") NOT NULL DEFAULT "No",
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=InnoDB AUTO_INCREMENT=2869 DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE IF NOT EXISTS `personality_test` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `user_id` CHAR(36) NOT NULL,
+  `test`  TEXT NOT NULL DEFAULT "",
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=InnoDB AUTO_INCREMENT=2869 DEFAULT CHARSET=utf8;
+
+
 
 
 COMMIT;

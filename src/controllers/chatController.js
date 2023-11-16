@@ -49,7 +49,7 @@ export async function addMessage(id_chatroom, id_sender, newMessage){
     else
         id_user = checkUser[0].id_user_2;
     let data = {
-        id_chatroom:id_chatroom,
+        id_chatroom:id_chatroom, 
         id_sender: id_sender,
         id_user: id_user,
         message: newMessage
