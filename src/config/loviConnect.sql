@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS `chatrooms` (
 
 CREATE TABLE IF NOT EXISTS `fakes` (
   `id_fake` CHAR(36) NOT NULL PRIMARY KEY ,
-  `id_fake` CHAR(36) NOT NULL,
   `id_user` CHAR(36) NOT NULL,
   `id_sender` CHAR(36) NOT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -34,13 +33,11 @@ CREATE TABLE IF NOT EXISTS `fakes` (
 
 CREATE TABLE IF NOT EXISTS `interests` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
-  `id_interest` CHAR(36) NOT NULL ,
-  `interest` varchar(50) NOT NULL,
-  KEY `id_interest` (`id_interest`)
+  `interest` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- RATHER: (What user don't like the most)
-INSERT INTO `interests` (`id_interest`, `interest`) VALUES
+INSERT INTO `interests` (`id`, `interest`) VALUES
 (1, 'Dishonesty'),
 (2, 'Poor communication'),
 (3, 'Constant criticism'),
@@ -54,14 +51,14 @@ INSERT INTO `interests` (`id_interest`, `interest`) VALUES
 (11, 'Anger issue'),
 (12, 'Irresponsibility'),
 (13, 'Disrespecting'),
-(14, 'Being abusive');
-(15, 'Unwillingness to try new things');
-(16, 'Refusal to compromise');
-(17, 'Self-centeredness');
-(18, 'Nagging');
-(19, 'Ignoring emotional needs');
-(20, 'Always seeking validation');
-(21, 'Being glued to devices');
+(14, 'Being abusive'),
+(15, 'Unwillingness to try new things'),
+(16, 'Refusal to compromise'),
+(17, 'Self-centeredness'),
+(18, 'Nagging'),
+(19, 'Ignoring emotional needs'),
+(20, 'Always seeking validation'),
+(21, 'Being glued to devices'),
 (22, 'Belittling people'),
 (23, 'Forgetting important dates'),
 (24, 'Childish attitude'),
@@ -81,7 +78,7 @@ INSERT INTO `interests` (`id_interest`, `interest`) VALUES
 (38, 'Poligamy/poliandry'),
 (39, 'Oral sex'),
 (40, 'Anal sex'),
-(41, 'Lack of love for pets')
+(41, 'Lack of love for pets');
 
 
 CREATE TABLE IF NOT EXISTS `likes` (
@@ -94,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `likes` (
 CREATE TABLE IF NOT EXISTS `messages` (
   `id_message` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_chatroom` CHAR(36) NOT NULL,
-  `id_sender` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_sender` CHAR(36) NOT NULL ,
   `id_user` CHAR(36) NOT NULL,
   `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `message` varchar(1000) NOT NULL,
@@ -126,18 +123,22 @@ CREATE TABLE IF NOT EXISTS `pics_verification` (
 CREATE TABLE IF NOT EXISTS `profiles` (
   `id_profile` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
-  `gender` varchar(25) DEFAULT NULL,
+  `gender` ENUM('male', 'female','transgender'),
+  `sexuality` ENUM('heterosexual', 'homosexual','bisexual'),
   `birthday` date DEFAULT NULL,
-  `sex_prefer` ENUM('man', 'woman','both') NOT NULL DEFAULT 'both',
   `biography` varchar(10000) DEFAULT NULL,
   `location_lat` float NOT NULL,
   `location_lon` float NOT NULL,
   `job` varchar(255) NOT NULL,
-  `relationship_status` ENUM('single', 'relationship','married', 'divorcee', 'complicated') NOT NULL DEFAULT 'single',
-  `age` int(2)
+  `relationship_status` ENUM('single','engaged', 'in-a-relationship','married', 'divorcee', 'complicated') NOT NULL DEFAULT 'single',
+  `looking_for` ENUM('friendship', 'relationship','fun') NOT NULL DEFAULT 'friendship',
+  `age` int(2),
+  `religion` varchar(255) DEFAULT NULL,
   `avatar` varchar(255) DEFAULT NULL,
   `fame` int(11) NOT NULL DEFAULT '0',
-  `city` varchar(255) DEFAULT 'Paris'
+  `city` varchar(255) DEFAULT 'Paris',
+  `country_name` varchar(255) NOT NULL,
+  `country_code` varchar(10) NOT NULL
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `admins` (
@@ -175,6 +176,7 @@ CREATE TABLE IF NOT EXISTS `personality_test_questions` (
   `data-type` VARCHAR(25) NOT NULL,
   `choices`  json NOT NULL,
   `version`  VARCHAR(25) NOT NULL DEFAULT '1.0.0',
+  `gender` ENUM('man', 'woman') DEFAULT 'man',
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -204,7 +206,7 @@ CREATE TABLE IF NOT EXISTS `invite_datings` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `invited_id` CHAR(36) NOT NULL,
-  `is_active` INT(1) NOT NULL DEFAULT 0;
+  `is_active` INT(1) NOT NULL DEFAULT 0,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -226,7 +228,7 @@ CREATE TABLE IF NOT EXISTS `booster` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `type` ENUM('boost', 'super_boost') NOT NULL DEFAULT 'boost',
-  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `user_settings` (
@@ -240,17 +242,12 @@ CREATE TABLE IF NOT EXISTS `user_settings` (
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `personality_test` (
-  `id` CHAR(36) NOT NULL PRIMARY KEY ,
-  `user_id` CHAR(36) NOT NULL,
-  `test`  TEXT NOT NULL DEFAULT "",
-  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `user_filters` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
-  `gender` ENUM('male', 'female', 'both') NOT NULL DEFAULT "both",
+  `gender` ENUM('male', 'female', 'transgender') NOT NULL DEFAULT "male",
+  `sexuality` ENUM('heterosexual', 'homosexual','bisexual'),
   `age_start` INT(2) NOT NULL DEFAULT 18,
   `age_limit` INT(2) NOT NULL DEFAULT 60,
   `interest` ENUM('relationship', 'friendship', 'fun', 'any') NOT NULL DEFAULT 'any',
@@ -269,6 +266,13 @@ CREATE TABLE IF NOT EXISTS `versus_losts` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `win_id`  TEXT NOT NULL DEFAULT "",
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `admin_settings` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `app_version` VARCHAR(36) NOT NULL DEFAULT "1.0.0",
+  `maintenance_active`  tinyint(1) NOT NULL DEFAULT "0",
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
