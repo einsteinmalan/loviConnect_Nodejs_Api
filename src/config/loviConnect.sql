@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `id_user` CHAR(36) DEFAULT NULL,
   `id_sender` CHAR(36) NOT NULL,
   `notification` varchar(25) NOT NULL,
-    `type` ENUM('Personal', 'System') NOT NULL DEFAULT 'Personal',
+  `type` ENUM('Personal', 'System') NOT NULL DEFAULT 'Personal',
   `notif_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `readed` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -117,15 +117,24 @@ CREATE TABLE IF NOT EXISTS `pics` (
   `path` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `pics_verification` (
+  `id_pic` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_user` CHAR(36) NOT NULL,
+  `path` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `profiles` (
   `id_profile` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
   `gender` varchar(25) DEFAULT NULL,
   `birthday` date DEFAULT NULL,
-  `sex_prefer` varchar(25) DEFAULT 'bi',
+  `sex_prefer` ENUM('man', 'woman','both') NOT NULL DEFAULT 'both',
   `biography` varchar(10000) DEFAULT NULL,
   `location_lat` float NOT NULL,
   `location_lon` float NOT NULL,
+  `job` varchar(255) NOT NULL,
+  `relationship_status` ENUM('single', 'relationship','married', 'divorcee', 'complicated') NOT NULL DEFAULT 'single',
+  `age` int(2)
   `avatar` varchar(255) DEFAULT NULL,
   `fame` int(11) NOT NULL DEFAULT '0',
   `city` varchar(255) DEFAULT 'Paris'
@@ -151,11 +160,30 @@ CREATE TABLE IF NOT EXISTS `users` (
   `ini_pwd_link` varchar(255) DEFAULT NULL,
   `online` tinyint(1) NOT NULL DEFAULT '0',
   `last_login` datetime DEFAULT NULL,
+  `is_verified` tinyint(1) NOT NULL DEFAULT '0',
   `creation_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `active_link` (`active_link`),
   UNIQUE KEY `ini_pwd_link` (`ini_pwd_link`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `personality_test_questions` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `question` VARCHAR(255) NOT NULL,
+  `type` VARCHAR(25) NOT NULL,
+  `data-type` VARCHAR(25) NOT NULL,
+  `choices`  json NOT NULL,
+  `version`  VARCHAR(25) NOT NULL DEFAULT '1.0.0',
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `user_personality_test` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `user_id` CHAR(36) NOT NULL,
+  `content`  json,
+  `version`  VARCHAR(25) NOT NULL DEFAULT '1.0.0',
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
