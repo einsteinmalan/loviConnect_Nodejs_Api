@@ -3,40 +3,53 @@ const chatModel = require('../models/chat');
 const jwtModel = require('../models/jwt');
 const emailSender = require('../models/emailSender');
 const crypto = require('crypto');
+let form_validator = require('../form_validator');
 
 export async function getAccount(req, res) {
-    const result = await userModel.getUserInfoById(req.params.userid);
+    const result = await userModel.getUserInfoById(req.params.userId);
     if (typeof(result.err) !== 'undefined') {
-        return res.status(400).json({ error: result.err });
+        return res.status(400).json({ error: result.err, status:400, data:[], message:"Account doesn't exist!" });
     } else {
         return res.status(200).json({
-            data: result
+            data: result,
+            status: 200,
+            error: null,
+            message:'Account retrieved successfully!!!'
         });
     }
 }
 
 export async function register(req, res) {
-    const check_email = await userModel.verifyExistEmail(req.body.email);
-    if (typeof(check_email) !== 'undefined') {
-        return res.status(400).json({ error: check_email.err });
-    } else {
-        const check_username = await userModel.verifyExistUsername(req.body.username);
-        if (typeof(check_username) !== 'undefined') {
-            return res.status(400).json({ error: check_username.err });
-        } else {
-            await userModel.createNewUser(req.body);
+    const email = req.body.email;
+    if(form_validator.isEmail(email)){
+        const check_email = await userModel.verifyExistEmail(email);
+        if (check_email[0]) {
+            return res.status(400).json({ error: "Email exist already!" ,status:400, message:"", data:[]});
+        }else {
+         const result =   await userModel.createNewUser(req.body);
+         if(result.error){
+
+         }else{
             return res.status(200).json({ 
-                success: 'Successfully register. A email has been sended to your email, please active your account before login',
+                status: 200,
+                error: null,
+                data:[],
+                message: 'Successfully register. A email has been sended to your email, please active your account before login',
             });
+         }
+            
         }
+    }else{
+        return res.status(400).json({ error: "Email is not valid" ,status:400, message:"", data:[]});
     }
+    
 }
 
 export async function active(req, res){
     const verifyLink = await userModel.verifyLink(req.params.active_link);
     if (verifyLink)
         return res.status(200).json({ success: "you account has been actived, you may login now." });
-    else return res.status(400).json({ error: "active failed" });
+    else return res.status(400).json({ error: "activation failed" ,status:400, message:"Bad Request!", data:[]});
 }
 
 export async function resetpwd(req,res){
@@ -46,7 +59,7 @@ export async function resetpwd(req,res){
     if(!checkUsername[0]){
         const checkEmail = await userModel.checkEmail(req.params.input);
         if(!checkEmail[0]){
-            return res.status(400).json({ error: "Username/Email does not exist" });
+            return res.status(400).json({ error: "Username or Email does not exist" });
         }
         email = checkEmail[0].email;
         username = checkEmail[0].username;
@@ -64,7 +77,7 @@ export async function resetpwd(req,res){
 export async function verifyPwdLink(req,res){
     const username = await userModel.verifyPwdLink(req.params.resetpwd_link);
     if(!username){
-        return res.status(400).json({ error: "Link is not valid, you can make a new request" });
+        return res.status(400).json({ error: "Link is not valid, you can make a new request" ,status:400, message:"Bad Request!", data:[]});
     }
     return res.status(200).json({ 
         success: "Link validate, you can reset your password",
@@ -82,13 +95,15 @@ export async function updatepwd(req,res){
 export async function login(req, res) {
     const result = await userModel.login(req.body);
     if (typeof(result.err) !== 'undefined') {
-        return res.status(400).json({ error: result.err });
+        return res.status(400).json({ error: result.err, status:400, message:"Bad Request!", data:[] });
     } else {
         const token = jwtModel.generateToken(result.userid, result.username);
         return res.status(200).json({
-            success: 'sucessfully login',
+            status: 200,
+            message: 'sucessfully login',
             data: result,
-            token: token
+            token: token,
+            error:null
         });
     }
 }
@@ -96,7 +111,7 @@ export async function login(req, res) {
 export async function authUser(req, res){
     const result = await userModel.getUserInfoById(req.userid);
     if (typeof(result.err) !== 'undefined') {
-        return res.status(400).json({ error: result.err });
+        return res.status(400).json({ error: result.err,status:400, message:"Bad Request!", data:[] });
     } else {
         return res.status(200).json({
             data: result,
@@ -118,18 +133,18 @@ export async function modifyAccount(req,res){
     }
     const result = await userModel.modifyAccount(data, req.userid);
     if (typeof(result) !== 'undefined')
-        return res.status(400).json({ error: result.err });
+        return res.status(400).json({ error: result.err,status:400, message:"Bad Request!", data:[] });
     else
         return res.status(200).json({ success: 'Account has been successfully updated' });
 }
 
 export async function getProfile(req, res) {
     if(!Number.isInteger(+req.params.userid)){
-        return res.status(400).json({error: "UserID has to be a number."});
+        return res.status(400).json({error: "UserID has to be a number.",status:400, message:"Bad Request!", data:[]});
     }
     const getProfile = await userModel.getProfileInfoById(req.params.userid);
     if(getProfile.err)
-        return res.status(400).json({error: getProfile.err});
+        return res.status(400).json({error: getProfile.err,status:400, message:"Bad Request!", data:[]});
     else{
         if (req.userid != req.params.userid) {
             let data = {
@@ -139,7 +154,7 @@ export async function getProfile(req, res) {
             }
             const checkBlock = await userModel.checkBlock(data.id_user, data.id_sender);
             if(checkBlock[0]){
-                return res.status(400).json({error: "You have blocked this user, you cannot check his/her profile anymore."});
+                return res.status(400).json({error: "You have blocked this user, you cannot check his/her profile anymore.", status:400, message:"Bad Request!", data:[]});
             }
             // await userModel.addNotif(data);
             await userModel.addFame(1, data.id_user);
@@ -189,7 +204,7 @@ export async function setAllReaded(req,res){
 
 export async function readNotif(req, res) {
     if(!Number.isInteger(+req.params.id_notif)){
-        return res.status(400).json({error: "NotifID has to be a number."});
+        return res.status(400).json({error: "NotifID has to be a number.",status:400, message:"Bad Request!", data:[]});
     }
     await userModel.readNotif(req.params.id_notif);
     const result = await userModel.getNotif(req.userid);
@@ -210,7 +225,7 @@ export async function readNotif(req, res) {
 
 export async function checkLike(req,res){
     if(!Number.isInteger(+req.params.userid)){
-        return res.status(400).json({error: "userID has to be a number."});
+        return res.status(400).json({error: "userID has to be a number.",status:400, message:"Bad Request!", data:[]});
     }
     const result = await userModel.checkLike(req.params.userid, req.userid);
     let like = false;
@@ -230,7 +245,7 @@ export async function checkLike(req,res){
 
 export async function likeProfile(req,res) {
     if(!Number.isInteger(+req.params.userid)){
-        return res.status(400).json({error: "userID has to be a number."});
+        return res.status(400).json({error: "userID has to be a number.",status:400, message:"Bad Request!", data:[]});
     }
     if (req.userid != req.params.userid) {
         let data = {
@@ -261,13 +276,13 @@ export async function likeProfile(req,res) {
         }
     }
     else{
-        return res.status(400).json({ error: 'You cannot like yourself'});
+        return res.status(400).json({ error: 'You cannot like yourself',status:400, message:"Bad Request!", data:[]});
     }
 }
 
 export async function blockUser(req,res) {
     if(!Number.isInteger(+req.params.userid)){
-        return res.status(400).json({error: "userID has to be a number."});
+        return res.status(400).json({error: "userID has to be a number.",status:400, message:"Bad Request!", data:[]});
     }
     if (req.userid != req.params.userid) {
         let data = {
@@ -294,13 +309,13 @@ export async function blockUser(req,res) {
         }
     }
     else{
-        return res.status(400).json({ error: 'You cannot block yourself'});
+        return res.status(400).json({ error: 'You cannot block yourself',status:400, message:"Bad Request!", data:[]});
     }
 }
 
 export async function reportFake(req,res) {
     if(!Number.isInteger(+req.params.userid)){
-        return res.status(400).json({error: "userID has to be a number."});
+        return res.status(400).json({error: "userID has to be a number.",status:400, message:"Bad Request!", data:[]});
     }
     if (req.userid != req.params.userid) {
         let data = {
@@ -333,13 +348,13 @@ export async function reportFake(req,res) {
         }
     }
     else{
-        return res.status(400).json({ error: 'You cannot block yourself'});
+        return res.status(400).json({ error: 'You cannot block yourself',status:400, message:"Bad Request!", data:[]});
     }
 }
 
 export async function unlikeProfile(req,res) {
     if(!Number.isInteger(+req.params.userid)){
-        return res.status(400).json({error: "userID has to be a number."});
+        return res.status(400).json({error: "userID has to be a number.",status:400, message:"Bad Request!", data:[]});
     }
     if (req.userid != req.params.userid) {
         let data = {
@@ -349,7 +364,7 @@ export async function unlikeProfile(req,res) {
         }
         const checklike = await userModel.checkLike(data.id_user, data.id_sender);
         if(!checklike[0]){
-            return res.status(400).json({ error: 'You have not liked this user before'});
+            return res.status(400).json({ error: 'You have not liked this user before',status:400, message:"Bad Request!", data:[]});
         }
         else{
             await userModel.unlike(data.id_user, data.id_sender);
@@ -380,7 +395,7 @@ export async function getInterestsList(req,res) {
 
 export async function uploadAvatar(req,res) {
     if(req.files == null){
-        return res.status(400).json({ error: 'No file was uploaded'});
+        return res.status(400).json({ error: 'No file was uploaded',status:400, message:"Bad Request!", data:[]});
     }
     const file = req.files.file;
     const filename = req.userid + crypto.randomBytes(5).toString('hex');

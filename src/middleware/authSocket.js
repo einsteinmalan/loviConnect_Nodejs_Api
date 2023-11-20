@@ -7,7 +7,8 @@ export async function authSocket(token){
     }
     try{
         const decoded = jwt.verify(token, jwtSecret.jwtSecret);
-        return {userid: decoded.userid};
+        //return {userid: decoded.userid};
+        return {id: decoded.id};
 
     }catch(err){
         return {error: 'Token is not valid'};

@@ -10,7 +10,8 @@ module.exports = function(req, res, next){
      }
      try{
          const decoded = jwt.verify(token, jwtSecret.jwtSecret);
-         req.userid = decoded.userid;
+        // req.userid = decoded.userid;
+        req.id = decoded.id;
          next();
     }catch(err){
         return res.status(401).json({

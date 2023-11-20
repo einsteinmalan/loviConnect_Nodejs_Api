@@ -6,19 +6,19 @@ const fs = require('fs');
 const publicIp = require('public-ip');
 const emailSender = require('./emailSender');
 const ipLocation = require("iplocation");
+let form_validator = require('../form_validator');
 
 export async function getUserInfoById(userid) {
     try {
         const result = await connection.query(`
-        SELECT users.id_user,username,firstname,lastname,email,online,avatar,location_lat,location_lon, city
+        SELECT users.id_user,firstname,lastname,email,online,avatar,location_lat,location_lon, city
         FROM users 
-        LEFT JOIN profiles ON profiles.id_user = users.id_user
-        WHERE users.id_user = ?
+        LEFT JOIN profiles ON profiles.id_user = users.id
+        WHERE users.id = ?
         `, userid);
         if (result[0]) {
             const user = {
                 id: result[0].id_user,
-                username: result[0].username,
                 email: result[0].email,
                 firstname: result[0].firstname,
                 lastname: result[0].lastname,
@@ -36,22 +36,19 @@ export async function getUserInfoById(userid) {
     }
 }
 
-export async function verifyExistEmail(email, userid) {
+export async function verifyExistEmail(email) {
     try {
         const result = await connection.query('SELECT email, id_user FROM users WHERE email = ?', email.toLowerCase());
-        if(result[0] && result[0].id_user != userid)
-            return { err: 'This email has been used' };
+        return result;
     } catch (err) {
         throw new Error(err);
     }
 }
 
-export async function verifyExistUsername(username, userid) {
+export async function verifyExistUsername(username) {
     try {
         const result = await connection.query('SELECT username,id_user FROM users WHERE username = ?', username.toLowerCase());
-        if (result[0] && result[0].id_user != userid) {
-            return { err: 'This username has been taken' };
-        }
+        return result;
     } catch (err) {
         throw new Error(err);
     }
@@ -93,28 +90,60 @@ export async function updatepwd(username, password){
 }
 
 export async function createNewUser(body) {
-    const hash = bcrypt.hashSync(body.password, 10);
+  
+    const password = body.password;
+    const fullname = body.firstname.toLowerCase();
+    const birthday = body.birthday ;
+    const biography = body.biography;
+    const job = body.job;
+
+    if(!form_validator.isSafePass(password)){
+        return { error:"The password is too weak.", data:[]}
+    }
+
+    if(!form_validator.isName(fullname)){
+        return { error:"The fullname is not a valid name", data:[]}
+    }
+
+    if(!form_validator.isDateofBirth(birthday)){
+        return { error:"The birthdate is not valid", data:[]}
+    }
+
+    const hash = bcrypt.hashSync(password, 10);
     const active_link = crypto.randomBytes(10).toString('hex');
     const data = {
         email: body.email.toLowerCase(),
-        username: body.username.toLowerCase(),
-        firstname: body.firstname.toLowerCase(),
-        lastname: body.lastname.toLowerCase(),
+        fullname: fullname,
         password: hash,
         active_link: active_link,
+        
     };
     try {
         const result = await connection.query('INSERT INTO users SET ?', data);
         try{
             const IP = await publicIp.v4();
             const LatLng = await ipLocation(IP);
+            console.log('LatLn', LatLng);
             const dataProfile = {
                 id_user: result.insertId,
                 location_lat: LatLng.latitude,
                 location_lon: LatLng.longitude,
-                city: LatLng.city
+                city: LatLng.city,
+                
+                gender: body.gender,
+                sexuality: body.sexuality,
+                birthday: birthday,
+                biography: biography,
+                job: job,
+                relationship_status: body.relationship_status,
+                looking_for: body.looking_for,
+                religion: body.religion,
+                country_name: body.country_name,
+                country_code: body.country_code
+
             }
-            await connection.query('INSERT INTO profiles SET ?', dataProfile);
+           const final_result = await connection.query('INSERT INTO profiles SET ?', dataProfile);
+           return {error:null, data:[]}
         }catch (err) {
             throw new Error(err);
         }

@@ -121,18 +121,17 @@ CREATE TABLE IF NOT EXISTS `pics_verification` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `profiles` (
-  `id_profile` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
-  `gender` ENUM('male', 'female','transgender'),
-  `sexuality` ENUM('heterosexual', 'homosexual','bisexual'),
+  `gender` ENUM('male', 'female','transgender') NOT NULL ,
+  `sexuality` ENUM('heterosexual', 'homosexual','bisexual') NOT NULL,
   `birthday` date DEFAULT NULL,
-  `biography` varchar(10000) DEFAULT NULL,
+  `biography` varchar(500) DEFAULT NULL,
   `location_lat` float NOT NULL,
   `location_lon` float NOT NULL,
   `job` varchar(255) NOT NULL,
-  `relationship_status` ENUM('single','engaged', 'in-a-relationship','married', 'divorcee', 'complicated') NOT NULL DEFAULT 'single',
+  `relationship_status` ENUM('single','engaged', 'in-relationship','married', 'divorcee', 'complicated') NOT NULL DEFAULT 'single',
   `looking_for` ENUM('friendship', 'relationship','fun') NOT NULL DEFAULT 'friendship',
-  `age` int(2),
   `religion` varchar(255) DEFAULT NULL,
   `avatar` varchar(255) DEFAULT NULL,
   `fame` int(11) NOT NULL DEFAULT '0',
@@ -150,21 +149,18 @@ CREATE TABLE IF NOT EXISTS `admins` (
 
 
 CREATE TABLE IF NOT EXISTS `users` (
-  `id_user` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `email` varchar(255) NOT NULL,
-  `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `firstname` varchar(255) NOT NULL,
-  `lastname` varchar(255) NOT NULL,
+  `fullname` varchar(255) NOT NULL,
   `active` tinyint(1) DEFAULT '0',
   `active_link` varchar(255) DEFAULT NULL,
   `ini_pwd_link` varchar(255) DEFAULT NULL,
-  `online` tinyint(1) NOT NULL DEFAULT '0',
+  `online` tinyint(1) NOT NULL DEFAULT '1',
   `last_login` datetime DEFAULT NULL,
   `is_verified` tinyint(1) NOT NULL DEFAULT '0',
   `creation_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `email` (`email`),
-  UNIQUE KEY `username` (`username`),
   UNIQUE KEY `active_link` (`active_link`),
   UNIQUE KEY `ini_pwd_link` (`ini_pwd_link`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
