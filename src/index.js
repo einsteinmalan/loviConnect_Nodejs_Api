@@ -1,4 +1,5 @@
 const app = require("express")();
+const express = require('express')
 var http = require("http").Server(app);
 
 const bodyParser = require('body-parser');
@@ -17,6 +18,15 @@ app.use((req, res, next) => {
     res.header( 'Access-Control-Allow-Credentials', 'true');
     next();
 });
+
+// User can read pictures from it
+app.use('/storage_user', express.static('storage_user'));
+app.use('/storage_gallery', express.static('storage_gallery'));
+app.use('/storage_chat', express.static('storage_chat'));
+app.use('/storage_videos', express.static('storage_videos'));
+app.use('/storage_audios', express.static('storage_audios'));
+app.use('/storage_ads', express.static('storage_ads'));
+app.use('/support_image', express.static('support_image'));
   
 // include router
 const userRoute = require('./routes/userRoute');
@@ -27,6 +37,9 @@ const chatRoute = require('./routes/chatRoute');
 app.use('/user/', userRoute);
 app.use('/index/', indexRoute);
 app.use('/chat/', chatRoute);
+
+
+
 
 app.get("/generate", (req, res) => {
     generateUser.generateUser();
