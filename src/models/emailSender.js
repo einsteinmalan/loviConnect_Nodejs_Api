@@ -18,7 +18,7 @@ export async function activeAccount(email, username, active_link){
       <body>
         <p>Hi ${username},</p>
         <br>
-        <p>Thank you for your registration on Matcha.</p>
+        <p>Thank you for your registration on LoviConnect.</p>
         <p>Please click the link below to active your account: </p>
         <a href="http:localhost:3000/register/${active_link}">Click Me</a>
       </body>
@@ -26,7 +26,7 @@ export async function activeAccount(email, username, active_link){
     `;
 
     await transporter.sendMail({
-        from: "matcha.42.fr",
+        from: "LoviConnect",
         to: email,
         subject: "Welcome to Matcha",
         html: message,

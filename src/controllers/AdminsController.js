@@ -11,7 +11,7 @@ export async function createAdmin(req, res) {
     }
 }
 
-export async function getAdmin(req, res) {
+export async function getAdmin(req, res) { 
     const { adminId } = req.params;
 
     try {
