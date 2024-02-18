@@ -31,6 +31,7 @@
     "iplocation": "^7.2.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.24.0",
+    "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "nodemailer": "^6.4.6",
     "nodemon": "^2.0.2",

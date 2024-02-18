@@ -5,6 +5,24 @@ const emailSender = require("../models/emailSender");
 const crypto = require("crypto");
 let form_validator = require("../form_validator");
 
+// Upload and store images
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  // Place of picture
+  destination: (request, file, callback) => {
+    callback(null, "user_images/");
+  },
+  filename: (request, file, callback) => {
+    const avatarName = Date.now() + file.originalname;
+    callback(null, avatarName);
+  },
+});
+
+const uploadImage = multer({
+  storage: storage,
+});
+
 export async function getAccount(req, res) {
   const result = await userModel.getUserInfoById(req.params.userId);
   if (typeof result.err !== "undefined") {
@@ -639,8 +657,9 @@ export async function uploadAvatar(req, res) {
     });
   }
   const file = req.files.file;
-  const filename = req.userid + crypto.randomBytes(5).toString("hex");
-  file.mv(`../front/public/images/${filename}`, (err) => {
+  const filename =
+    req.userid + Date.now() + crypto.randomBytes(5).toString("hex");
+  file.mv(`../user_images/${filename}`, (err) => {
     if (err) {
       return res.status(500).json({
         error: err,
@@ -652,7 +671,8 @@ export async function uploadAvatar(req, res) {
   });
   await userModel.uploadAvatar(
     req.userid,
-    "http://localhost:3000/images/" + filename,
+    filename,
+    //"http://localhost:3000/images/" + filename,
   );
   return res.status(200).json({
     error: null,
@@ -691,27 +711,31 @@ export async function uploadPictures(req, res) {
     return res.status(200).json({
       error: null,
       status: 200,
-      message: "Picture uploaded successfully",
+      message: "No picture found in requests",
       data: [],
     });
   }
   const files = req.files.file;
+
   if (Array.isArray(files)) {
     for (let i = 0; i < files.length; i++) {
-      const filename = req.userid + crypto.randomBytes(5).toString("hex");
-      files[i].mv(`../front/public/images/${filename}`, (err) => {
+      const filename =
+        req.userid + Date.now() + crypto.randomBytes(5).toString("hex");
+      files[i].mv(`../user_images/${filename}`, (err) => {
         if (err) {
           return res.status(500).send(err);
         }
       });
       await userModel.uploadPics(
         req.userid,
-        "http://localhost:3000/images/" + filename,
+        filename,
+        // "http://localhost:3000/images/" + filename,
       );
     }
   } else {
-    const filename = req.userid + crypto.randomBytes(5).toString("hex");
-    files.mv(`../front/public/images/${filename}`, (err) => {
+    const filename =
+      req.userid + Date.now() + crypto.randomBytes(5).toString("hex");
+    files.mv(`../user_images/${filename}`, (err) => {
       if (err) {
         return res.status(500).json({
           error: err,
@@ -723,10 +747,16 @@ export async function uploadPictures(req, res) {
     });
     await userModel.uploadPics(
       req.userid,
-      "http://localhost:3000/images/" + filename,
+      filename,
+      // "http://localhost:3000/images/" + filename,
     );
   }
-  return res.status(200);
+  return res.status(200).json({
+    error: null,
+    status: 200,
+    message: "File uploaded!",
+    data: [],
+  });
 }
 
 export async function getBlockList(req, res) {
