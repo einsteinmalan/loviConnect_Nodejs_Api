@@ -283,23 +283,23 @@ CREATE TABLE IF NOT EXISTS `user_filters` (
   `age_start` INT(2) NOT NULL DEFAULT 18,
   `age_limit` INT(2) NOT NULL DEFAULT 60,
   `interest` ENUM('relationship', 'friendship', 'fun', 'any') NOT NULL DEFAULT 'any',
-  `location` VARCHAR(50) DEFAULT NULL,
+  `location` VARCHAR(255) DEFAULT NULL,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `versus_wins` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
-    `chooser_id` CHAR(36) NOT NULL,
-  `lost_id`  TEXT NOT NULL DEFAULT "",
+  `chooser_id` CHAR(36) NOT NULL,
+  `lost_id`  CHAR(36) NOT NULL,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `versus_losts` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
-  `chooser_id` CHAR(36) NOT NULL,
   `user_id` CHAR(36) NOT NULL,
-  `win_id`  TEXT NOT NULL DEFAULT "",
+  `chooser_id` CHAR(36) NOT NULL,
+  `win_id` CHAR(36) NOT NULL,,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

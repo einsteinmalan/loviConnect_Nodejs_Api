@@ -76,6 +76,26 @@ export async function register(req, res) {
   }
 }
 
+export async function createUserProfile(req, res) {
+  const dob = req.body.dob; //Mysql date format
+  const zodiac = await getZodiacSign(dob);
+  const result = await userModel.createNewProfile(req.body, zodiac);
+  if (!result) {
+    return res.status(400).json({
+      error: "An error occured! COuldn't create user profile",
+      status: 400,
+      message: "Bad Request!",
+      data: [],
+    });
+  }
+  return res.status(200).json({
+    error: null,
+    status: 200,
+    message: "User profile successfully created",
+    data: [],
+  });
+}
+
 export async function active(req, res) {
   const verifyLink = await userModel.verifyLink(req.params.active_link);
   if (verifyLink) {
@@ -166,7 +186,7 @@ export async function login(req, res) {
     const token = jwtModel.generateToken(result.userid, result.username);
     return res.status(200).json({
       status: 200,
-      message: "sucessfully login",
+      message: "Sucessfully login",
       data: result,
       token: token,
       error: null,
@@ -208,7 +228,6 @@ export async function modifyAccount(req, res) {
     username: req.body.data.username,
     email: req.body.data.email,
     firstname: req.body.data.firstname,
-    lastname: req.body.data.lastname,
   };
   const result = await userModel.modifyAccount(data, req.userid);
   if (typeof result !== "undefined")
@@ -228,9 +247,12 @@ export async function modifyAccount(req, res) {
 }
 
 export async function getProfile(req, res) {
-  if (!Number.isInteger(+req.params.userid)) {
+  if (
+    typeof req.params.userid === "undefined" ||
+    req.params.userid.length === 0
+  ) {
     return res.status(400).json({
-      error: "UserID has to be a number.",
+      error: "UserID missing",
       status: 400,
       message: "Bad Request!",
       data: [],
@@ -349,7 +371,7 @@ export async function readNotif(req, res) {
 }
 
 // export async function getHistory(req, res){
-//     if(!Number.isInteger(+req.params.userid)){
+//     if(typeof req.params.userid !== "undefined" && req.params.userid.length === 36){
 //         return res.status(400).json({error: "userID has to be a number."});
 //     }
 //     const result = await userModel.getHistory(req.params.userid);
@@ -359,7 +381,10 @@ export async function readNotif(req, res) {
 // }
 
 export async function checkLike(req, res) {
-  if (!Number.isInteger(+req.params.userid)) {
+  if (
+    typeof req.params.userid !== "undefined" &&
+    req.params.userid.length === 36
+  ) {
     return res.status(400).json({
       error: "userID has to be a number.",
       status: 400,
@@ -392,7 +417,11 @@ export async function checkLike(req, res) {
 }
 
 export async function likeProfile(req, res) {
-  if (!Number.isInteger(+req.params.userid)) {
+  if (
+    typeof req.params.userid !== "undefined" &&
+    req.params.userid.length === 36 &&
+    req.params.loserid.length
+  ) {
     return res.status(400).json({
       error: "userID has to be a number.",
       status: 400,
@@ -400,11 +429,12 @@ export async function likeProfile(req, res) {
       data: [],
     });
   }
-  if (req.userid != req.params.userid) {
+  if (req.userid != req.params.userid && req.userid != req.params.loserid) {
     let data = {
       // notification: 'likes',
       id_user: req.params.userid,
       id_sender: req.userid,
+      id_loser: req.params.loserid,
     };
     const checklike = await userModel.checkLike(data.id_user, data.id_sender);
     if (checklike[0]) {
@@ -458,7 +488,10 @@ export async function likeProfile(req, res) {
 }
 
 export async function blockUser(req, res) {
-  if (!Number.isInteger(+req.params.userid)) {
+  if (
+    typeof req.params.userid !== "undefined" &&
+    req.params.userid.length === 36
+  ) {
     return res.status(400).json({
       error: "userID has to be a number.",
       status: 400,
@@ -511,7 +544,10 @@ export async function blockUser(req, res) {
 }
 
 export async function reportFake(req, res) {
-  if (!Number.isInteger(+req.params.userid)) {
+  if (
+    typeof req.params.userid !== "undefined" &&
+    req.params.userid.length === 36
+  ) {
     return res.status(400).json({
       error: "userID has to be a number.",
       status: 400,
@@ -577,7 +613,10 @@ export async function reportFake(req, res) {
 }
 
 export async function unlikeProfile(req, res) {
-  if (!Number.isInteger(+req.params.userid)) {
+  if (
+    typeof req.params.userid !== "undefined" &&
+    req.params.userid.length === 36
+  ) {
     return res.status(400).json({
       error: "userID has to be a number.",
       status: 400,
@@ -799,6 +838,41 @@ export async function unBlockUser(req, res) {
     message: "You have unblocked this user, you can now visit his profile",
     date: [],
   });
+}
+
+//Zodiac section
+export async function getZodiacSign(dateOfBirth) {
+  // Assuming dateOfBirth is in the format 'YYYY-MM-DD HH:mm:ss'
+  const parsedDate = new Date(dateOfBirth);
+
+  const month = parsedDate.getMonth() + 1; // JavaScript months are zero-based, so January is 0
+  const day = parsedDate.getDate();
+
+  if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) {
+    return "Aries";
+  } else if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) {
+    return "Taurus";
+  } else if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) {
+    return "Gemini";
+  } else if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) {
+    return "Cancer";
+  } else if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) {
+    return "Leo";
+  } else if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) {
+    return "Virgo";
+  } else if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) {
+    return "Libra";
+  } else if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) {
+    return "Scorpio";
+  } else if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) {
+    return "Sagittarius";
+  } else if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) {
+    return "Capricorn";
+  } else if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) {
+    return "Aquarius";
+  } else {
+    return "Pisces";
+  }
 }
 
 //get chatroom and message

@@ -148,12 +148,28 @@ export async function createNewUser(body) {
   }
 }
 
-export async function createNewProfile(body) {
+export async function createNewProfile(body, zodiac) {
+  const id = uuid.v4();
+  id_user = body.user_id;
   const password = body.password;
   const fullname = body.firstname.toLowerCase();
-  const birthday = body.birthday;
+  const birthday = body.dob;
   const biography = body.biography;
   const job = body.job;
+  const gender = body.gender;
+  const sexuality = body.sexuality;
+  const location_lat = body.lat;
+  const location_lon = body.lon;
+  const relationship_status = body.relationship_status;
+  const looking_for = body.looking_for;
+  const religion = body.religion;
+  const city = body.city;
+  const country_name = body.country_name;
+  const country_code = body.country_code;
+
+  if (body.user_id === null || body.user_id === undefined) {
+    return { error: "No user_id provided", data: [] };
+  }
 
   if (!form_validator.isSafePass(password)) {
     return { error: "The password is too weak.", data: [] };
@@ -167,46 +183,35 @@ export async function createNewProfile(body) {
     return { error: "The birthdate is not valid", data: [] };
   }
 
-  const hash = bcrypt.hashSync(password, 10);
-  const active_link = crypto.randomBytes(10).toString("hex");
-  const data = {
-    email: body.email.toLowerCase(),
-    fullname: fullname,
-    password: hash,
-    active_link: active_link,
-  };
   try {
-    const result = await connection.query("INSERT INTO profiles SET ?", data);
-    try {
-      const IP = await publicIp.v4();
-      const LatLng = await ipLocation(IP);
-      console.log("LatLn", LatLng);
-      const dataProfile = {
-        id_user: result.insertId,
-        location_lat: LatLng.latitude,
-        location_lon: LatLng.longitude,
-        city: LatLng.city,
-
-        gender: body.gender,
-        sexuality: body.sexuality,
-        birthday: birthday,
-        biography: biography,
-        job: job,
-        relationship_status: body.relationship_status,
-        looking_for: body.looking_for,
-        religion: body.religion,
-        country_name: body.country_name,
-        country_code: body.country_code,
-      };
-      const final_result = await connection.query(
-        "INSERT INTO profiles SET ?",
-        dataProfile,
-      );
-      return { error: null, data: [] };
-    } catch (err) {
-      throw new Error(err);
-    }
-    await emailSender.activeAccount(data.email, data.username, active_link);
+    // const IP = await publicIp.v4();
+    // const LatLng = await ipLocation(IP);
+    // console.log("LatLn", LatLng);
+    const dataProfile = {
+      id: id,
+      id_user: id_user,
+      location_lat: location_lat,
+      location_lon: location_lon,
+      city: city,
+      country_name: country_name,
+      country_code: country_code,
+      gender: gender,
+      gender: gender,
+      sexuality: sexuality,
+      birthday: birthday,
+      biography: biography,
+      job: job,
+      relationship_status: relationship_status,
+      looking_for: looking_for,
+      religion: religion,
+      country_name: country_name,
+      country_code: country_code,
+    };
+    const final_result = await connection.query(
+      "INSERT INTO profiles SET ?",
+      dataProfile,
+    );
+    return { error: null, data: [] };
   } catch (err) {
     throw new Error(err);
   }
@@ -285,9 +290,9 @@ export async function logout(userid) {
 export async function getProfileInfoById(userid) {
   try {
     const result = await connection.query(
-      `SELECT profiles.id_user, gender, birthday, sex_prefer, biography, location_lat, location_lon, avatar, fame, city, username, firstname, lastname, last_login, online
+      `SELECT profiles.id_user, gender, birthday, sex_prefer, biography, location_lat, location_lon, avatar, fame, city, fullname, last_login, online
             FROM profiles 
-            LEFT JOIN users on profiles.id_user = users.id_user
+            LEFT JOIN users on profiles.id_user = users.id 
             WHERE profiles.id_user = ?`,
       userid,
     );
@@ -512,6 +517,28 @@ export async function addLike(userid, likerid) {
   }
 }
 
+export async function addWins(id, userId, chooserId, lostId) {
+  try {
+    await connection.query(
+      "INSERT INTO versus_wins (id,chooser_id, user_id, lost_id) VALUES (?, ?, ?, ?)",
+      [id, chooserId, userId, lostId],
+    );
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function addLost(id, userId, chooserId, lostId) {
+  try {
+    await connection.query(
+      "INSERT INTO versus_losts (id,chooser_id, user_id, win_id) VALUES (?, ?, ?, ?)",
+      [id, chooserId, userId, lostId],
+    );
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
 export async function checkBlock(userid, blockerid) {
   try {
     const result = await connection.query(
@@ -607,12 +634,9 @@ export async function uploadAvatar(userid, filename) {
   } else {
     if (profile[0].avatar) {
       let filename = profile[0].avatar.split("/");
-      fs.unlink(
-        `../front/public/images/${filename[filename.length - 1]}`,
-        (err) => {
-          if (err) console.log(err);
-        },
-      );
+      fs.unlink(`../user_images/${filename[filename.length - 1]}`, (err) => {
+        if (err) console.log(err);
+      });
     }
     try {
       await connection.query(
@@ -649,12 +673,9 @@ export async function uploadPics(userid, filename) {
 
 export async function deletePics(path) {
   let filename = path.split("/");
-  fs.unlink(
-    `../front/public/images/${filename[filename.length - 1]}`,
-    (err) => {
-      if (err) console.log(err);
-    },
-  );
+  fs.unlink(`../user_images/${filename[filename.length - 1]}`, (err) => {
+    if (err) console.log(err);
+  });
   try {
     await connection.query("DELETE FROM pics WHERE path = ?", path);
   } catch (err) {
