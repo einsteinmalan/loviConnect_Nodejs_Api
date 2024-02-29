@@ -287,10 +287,22 @@ export async function logout(userid) {
   }
 }
 
+export async function getUserSettings(userid) {
+  try {
+    result = await connection.query(
+      "SELECT * FROM user_filters WHERE user_id = ?",
+      userid,
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
 export async function getProfileInfoById(userid) {
   try {
     const result = await connection.query(
-      `SELECT profiles.id_user, gender, birthday, sex_prefer, biography, location_lat, location_lon, avatar, fame, city, fullname, last_login, online
+      `SELECT profiles.id_user, profiles.gender, profiles.birthday, profiles.biography, profiles.location_lat, profiles.location_lon, avatar, profiles.fame, profiles.city, fullname, online
             FROM profiles 
             LEFT JOIN users on profiles.id_user = users.id 
             WHERE profiles.id_user = ?`,
@@ -323,7 +335,7 @@ export async function getInterestsById(userid) {
     const result = await connection.query(
       `
             SELECT interest FROM interests 
-            LEFT JOIN users_interests on interests.id_interest = users_interests.id_interest
+            LEFT JOIN users_interests on interests.id = users_interests.id_interest
             WHERE users_interests.id_user = ?`,
       userid,
     );
@@ -762,6 +774,9 @@ export async function deleteUser(userid) {
             DELETE FROM notifications WHERE id_user = '${userid}' OR id_sender = '${userid}';
             DELETE FROM pics WHERE id_user = '${userid}';
             DELETE FROM users_interests WHERE id_user = '${userid}';
+            DELETE FROM versus_wins WHERE win_id = '${userid}';
+            DELETE FROM versus_wins WHERE lost_id = '${userid}';
+             DELETE FROM versus_wins WHERE chooser_id = '${userid}';
         `);
     return result;
   } catch (err) {

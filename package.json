@@ -51,6 +51,7 @@
     "@babel/core": "^7.9.0",
     "@babel/node": "^7.8.7",
     "@babel/preset-env": "^7.9.5",
+    "@faker-js/faker": "^8.4.1",
     "@typescript-eslint/parser": "^5.0.1",
     "concurrently": "^5.1.0",
     "eslint": "^8.52.0",

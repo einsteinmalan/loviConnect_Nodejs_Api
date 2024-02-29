@@ -3,7 +3,7 @@ SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!4001 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
@@ -30,6 +30,12 @@ CREATE TABLE IF NOT EXISTS `chatrooms` (
   `id_user_2` CHAR(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `fake_profile` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id_user` CHAR(36) NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `fakes` (
   `id_fake` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
@@ -38,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `fakes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `interests` (
-  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id` INT NOT NULL PRIMARY KEY ,
   `interest` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -137,21 +143,21 @@ CREATE TABLE IF NOT EXISTS `pics_verification` (
 CREATE TABLE IF NOT EXISTS `profiles` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
-  `gender` ENUM('male', 'female','transgender') NOT NULL ,
-  `sexuality` ENUM('heterosexual', 'homosexual','bisexual') NOT NULL,
+  `gender` ENUM('male', 'female','transgender') DEFAULT 'male' ,
+  `sexuality` ENUM('heterosexual', 'homosexual','bisexual') DEFAULT 'heterosexual',
   `birthday` date DEFAULT NULL,
   `biography` varchar(500) DEFAULT NULL,
-  `location_lat` float NOT NULL,
-  `location_lon` float NOT NULL,
-  `job` varchar(255) NOT NULL,
+  `location_lat` float DEFAULT NULL,
+  `location_lon` float DEFAULT NULL,
+  `job` varchar(255) DEFAULT NULL,
   `relationship_status` ENUM('single','engaged', 'in-relationship','married', 'divorcee', 'complicated') NOT NULL DEFAULT 'single',
   `looking_for` ENUM('friendship', 'relationship','fun') NOT NULL DEFAULT 'friendship',
   `religion` varchar(255) DEFAULT NULL,
   `avatar` varchar(255) DEFAULT NULL,
   `fame` int(11) NOT NULL DEFAULT '0',
-  `city` varchar(255) DEFAULT 'Paris',
-  `country_name` varchar(255) NOT NULL,
-  `country_code` varchar(10) NOT NULL
+  `city` varchar(255) DEFAULT NULL,
+  `country_name` varchar(255) DEFAULT NULL,
+  `country_code` varchar(10) DEFAULT NULL
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `admins` (
@@ -289,19 +295,26 @@ CREATE TABLE IF NOT EXISTS `user_filters` (
 
 CREATE TABLE IF NOT EXISTS `versus_wins` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
-  `user_id` CHAR(36) NOT NULL,
+  `win_id` CHAR(36) NOT NULL,
   `chooser_id` CHAR(36) NOT NULL,
   `lost_id`  CHAR(36) NOT NULL,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `versus_losts` (
+CREATE TABLE IF NOT EXISTS `pro_users` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `user_id` VARCHAR(36) NOT NULL DEFAULT "1.0.0",
+  `package`  ENUM('month','semester', 'year') NOT NULL ,
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/* CREATE TABLE IF NOT EXISTS `versus_losts` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `chooser_id` CHAR(36) NOT NULL,
   `win_id` CHAR(36) NOT NULL,,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8; */
 
 CREATE TABLE IF NOT EXISTS `admin_settings` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,

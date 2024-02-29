@@ -10,6 +10,7 @@ module.exports = function (req, res, next) {
   }
   try {
     const decoded = jwt.verify(token, jwtSecret.jwtSecret);
+    console.log(`middleman/auth -> ${decoded}`);
     // req.userid = decoded.userid;
     // req.id = decoded.id;
     req.userid = decoded.id;
