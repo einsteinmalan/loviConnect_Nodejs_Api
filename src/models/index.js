@@ -51,6 +51,39 @@ async function getInterestNum(userinterest, result) {
   return numCommonInterest;
 }
 
+
+export async function getIsUserPro(userId) {
+  try {
+    const result = await connection.query(
+      `
+      SELECT * FROM pro_users 
+      WHERE user_id = ? 
+      ORDER BY date DESC LIMIT 1
+        `,
+      [userId],
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function countVersusWins(userId) {
+  try {
+    const result = await connection.query(
+      `
+    SELECT COUNT(*) as count
+      FROM versus_wins
+      WHERE chooser_id = ? AND TIMEDIFF(NOW(), date) <= '24:00:00';
+        `,
+      [userId],
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
 export async function getSuggestions(
   gender,
   sexPrefer,
@@ -62,8 +95,8 @@ export async function getSuggestions(
 ) {
   try {
       const numbProfiles ;
-     const {hasProExpired} = await hasProExpired(userid);
-     if(hasProExpired){
+     const {hasExpired} = await hasProExpired(userid);
+     if(hasExpired){
         numbProfiles = 100;
      }else{
         numbProfiles =  500;
