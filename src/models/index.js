@@ -1,4 +1,5 @@
 const connection = require("../config/database");
+const moment = require('moment'); /
 
 async function user_interest(userid) {
   try {
@@ -60,6 +61,14 @@ export async function getSuggestions(
   userid,
 ) {
   try {
+      const numbProfiles ;
+     const {hasProExpired} = await hasProExpired(userid);
+     if(hasProExpired){
+        numbProfiles = 100;
+     }else{
+        numbProfiles =  500;
+     }
+
     const result = await connection.query(
       `
             SELECT u.id, u.fullname, u.online, u.zodiac_sign, u.is_blocked, u.active, u.profile_completed
@@ -78,7 +87,7 @@ export async function getSuggestions(
                 AND u.id NOT IN (SELECT versus_wins.win_id FROM versus_wins WHERE chooser_id = ?)
                 AND u.id NOT IN (SELECT versus_wins.lost_id FROM versus_wins WHERE chooser_id = ?)
                 AND u.id != ?
-                ORDER BY RAND()
+                ORDER BY RAND() LIMIT ?
                 -- ORDER BY p.fame DESC
         `,
       [
@@ -91,6 +100,8 @@ export async function getSuggestions(
         userid,
         userid,
         userid,
+        userid,
+        numbProfiles
       ],
     );
     const userinterest = await user_interest(userid);
@@ -112,6 +123,14 @@ export async function getSuggestionsIfBi(
   userid,
 ) {
   try {
+    const numbProfiles ;
+     const {hasProExpired} = await hasProExpired(userid);
+     if(hasProExpired){
+        numbProfiles = 100;
+     }else{
+        numbProfiles =  500;
+     }
+
     const result = await connection.query(
       `
             SELECT users.id_user, username, firstname, lastname, online,
@@ -119,7 +138,7 @@ export async function getSuggestionsIfBi(
                 location_lat, location_lon, fame, city
                 FROM users
                 LEFT JOIN profiles on users.id_user = profiles.id_user
-                WHERE sex_prefer = ?
+                WHERE sexuality = ?
                 AND (location_lat BETWEEN ? AND ?)
                 AND (location_lon BETWEEN ? AND ?)
                 AND users.id_user NOT IN (SELECT blocks.id_user FROM blocks WHERE id_sender = ?)
@@ -162,6 +181,48 @@ export async function searchUser(userid, keyword) {
   } catch (err) {
     throw new Error(err);
   }
+}
+
+//find out if user is pro
+// Function to calculate the expiration date based on the subscription package
+export async function calculateExpirationDate(startDate, packageType) {
+  const durationMapping = {
+    month: 1,
+    semester: 6,
+    year: 12,
+  };
+
+  return moment(startDate).add(durationMapping[packageType], "months");
+}
+
+export async function hasProExpired(userId) {
+  // Query to get the user's subscription details
+  const query =
+    "SELECT * FROM pro_users WHERE user_id = ? ORDER BY date DESC LIMIT 1";
+  const [subscription] = await connection.query(query, [userId]);
+
+  if (!subscription || !subscription.length) {
+    const hasExpired = true;
+    return {
+        hasExpired
+    }
+   // throw new Error("User not found or no subscription details available.");
+  }
+
+  const { duration, date } = subscription[0];
+  const currentDate = moment();
+
+  // Determine the expiration date based on the subscription package
+  const expirationDate = calculateExpirationDate(date, duration);
+
+  // Check if the subscription has expired
+  const hasExpired = currentDate.isAfter(expirationDate);
+
+  return {
+    duration,
+    expirationDate: expirationDate.format("YYYY-MM-DD HH:mm:ss"),
+    hasExpired,
+  };
 }
 
 export async function filterUser(

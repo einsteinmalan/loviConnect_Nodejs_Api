@@ -304,7 +304,7 @@ CREATE TABLE IF NOT EXISTS `versus_wins` (
 CREATE TABLE IF NOT EXISTS `pro_users` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` VARCHAR(36) NOT NULL DEFAULT "1.0.0",
-  `package`  ENUM('month','semester', 'year') NOT NULL ,
+  `duration`  ENUM('month','semester', 'year') NOT NULL ,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
