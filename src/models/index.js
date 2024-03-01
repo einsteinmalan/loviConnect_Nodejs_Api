@@ -1,5 +1,5 @@
 const connection = require("../config/database");
-const moment = require('moment'); /
+const moment = require("moment");
 
 async function user_interest(userid) {
   try {
@@ -50,7 +50,6 @@ async function getInterestNum(userinterest, result) {
   }
   return numCommonInterest;
 }
-
 
 export async function getIsUserPro(userId) {
   try {
@@ -107,19 +106,22 @@ export async function getSuggestions(
   minLong,
   MaxLong,
   userid,
+  age_start,
+  age_limit,
+  interest,
 ) {
   try {
-      const numbProfiles ;
-     const {hasExpired} = await hasProExpired(userid);
-     if(hasExpired){
-        numbProfiles = 100;
-     }else{
-        numbProfiles =  500;
-     }
+    let numbProfiles;
+    const { hasExpired } = await hasProExpired(userid);
+    if (hasExpired) {
+      numbProfiles = 100;
+    } else {
+      numbProfiles = 500;
+    }
 
     const result = await connection.query(
       `
-            SELECT u.id, u.fullname, u.online, u.zodiac_sign, u.is_blocked, u.active, u.profile_completed
+                SELECT u.id, u.fullname, u.online, u.zodiac_sign, u.is_blocked, u.active, u.profile_completed
                 p.gender, p.birthday, p.sexuality, p.avatar, p.biography,
                 p.location_lat, p.location_lon, p.fame, p.city, p.country, p.country_code 
                 FROM users AS u
@@ -129,6 +131,8 @@ export async function getSuggestions(
                 ANd u.active = 1
                 AND u.profile_completed = 1
                 AND p.sexuality = ?
+                AND p.looking_for ${interest === "any" ? 'IN ("relationship", "friendship", "fun")' : "= ?"}
+                AND TIMESTAMPDIFF(YEAR, p.birthday, CURDATE()) BETWEEN ${age_start} AND ${age_limit}
                 AND (p.location_lat BETWEEN ? AND ?)
                 AND (p.location_lon BETWEEN ? AND ?)
                 AND u.id NOT IN (SELECT blocks.id_user FROM blocks WHERE id_sender = ?)
@@ -141,6 +145,7 @@ export async function getSuggestions(
       [
         gender,
         sexPrefer,
+        interest,
         minLat,
         maxLat,
         minLong,
@@ -149,7 +154,7 @@ export async function getSuggestions(
         userid,
         userid,
         userid,
-        numbProfiles
+        numbProfiles,
       ],
     );
     const userinterest = await user_interest(userid);
@@ -171,13 +176,13 @@ export async function getSuggestionsIfBi(
   userid,
 ) {
   try {
-    const numbProfiles ;
-     const {hasProExpired} = await hasProExpired(userid);
-     if(hasProExpired){
-        numbProfiles = 100;
-     }else{
-        numbProfiles =  500;
-     }
+    let numbProfiles;
+    const { hasProExpired } = await hasProExpired(userid);
+    if (hasProExpired) {
+      numbProfiles = 100;
+    } else {
+      numbProfiles = 500;
+    }
 
     const result = await connection.query(
       `
@@ -252,9 +257,9 @@ export async function hasProExpired(userId) {
   if (!subscription || !subscription.length) {
     const hasExpired = true;
     return {
-        hasExpired
-    }
-   // throw new Error("User not found or no subscription details available.");
+      hasExpired,
+    };
+    // throw new Error("User not found or no subscription details available.");
   }
 
   const { duration, date } = subscription[0];

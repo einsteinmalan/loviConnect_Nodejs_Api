@@ -33,6 +33,9 @@ export async function getSuggestions(req, res) {
           range[0].longitude,
           range[1].longitude,
           req.userid,
+          userSettings[0].age_start,
+          userSettings[0].age_limit,
+          userSettings[0].interest,
         );
         break;
       case "female":
@@ -44,6 +47,9 @@ export async function getSuggestions(req, res) {
           range[0].longitude,
           range[1].longitude,
           req.userid,
+          userSettings[0].age_start,
+          userSettings[0].age_limit,
+          userSettings[0].interest,
         );
         break;
       case "both":
@@ -55,6 +61,9 @@ export async function getSuggestions(req, res) {
           range[0].longitude,
           range[1].longitude,
           req.userid,
+          userSettings[0].age_start,
+          userSettings[0].age_limit,
+          userSettings[0].interest,
         );
         //   suggestions = await indexModel.getSuggestionsIfBi(
         //     range[0].latitude,
@@ -93,9 +102,7 @@ export async function countVersusWinsForUser(userId, totalAllowed) {
   const currentDate = new Date();
   const startOfToday = new Date(currentDate);
   startOfToday.setHours(0, 0, 0, 0);
-
   // Query to count the number of versus_wins for the user within the last 24 hours
-
   const [result] = await indexModel.countVersusWins(userId);
   const versusWinCount = result[0].count;
 

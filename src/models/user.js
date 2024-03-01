@@ -302,7 +302,7 @@ export async function getUserSettings(userid) {
 export async function getProfileInfoById(userid) {
   try {
     const result = await connection.query(
-      `SELECT profiles.id_user, profiles.gender, profiles.birthday, profiles.biography, profiles.location_lat, profiles.location_lon, avatar, profiles.fame, profiles.city, fullname, online
+      `SELECT profiles.id_user, profiles.id, profiles.gender, profiles.birthday, profiles.biography, profiles.location_lat, profiles.location_lon, avatar, profiles.fame, profiles.city, fullname, online, profiles.country, profiles.country_code, profiles.city
             FROM profiles 
             LEFT JOIN users on profiles.id_user = users.id 
             WHERE profiles.id_user = ?`,
