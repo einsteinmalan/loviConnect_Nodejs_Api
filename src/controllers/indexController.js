@@ -106,10 +106,8 @@ export async function countVersusWinsForUser(userId, totalAllowed) {
 }
 
 export async function getUserFilters(userId) {
-  // Query to get user filters by user ID
-  const query = "SELECT * FROM user_filters WHERE user_id = ?";
-  const [userFilters] = await db.query(query, [userId]);
-  return userFilters[0];
+  const result = indexModel.getUserFilters(userId);
+  return result[0];
 }
 
 export async function searchUser(req, res) {

@@ -282,7 +282,7 @@ CREATE TABLE IF NOT EXISTS `user_settings` (
 
 
 CREATE TABLE IF NOT EXISTS `user_filters` (
-  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `id` CHAR(36) NOT NULL PRIMARY KEY,
   `user_id` CHAR(36) NOT NULL,
   `gender` ENUM('male', 'female', 'both') NOT NULL DEFAULT "male",
   `sexuality` ENUM('heterosexual', 'homosexual','bisexual'),

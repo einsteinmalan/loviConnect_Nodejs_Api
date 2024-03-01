@@ -72,10 +72,10 @@ export async function countVersusWins(userId) {
   try {
     const result = await connection.query(
       `
-    SELECT COUNT(*) as count
+      SELECT COUNT(*) as count
       FROM versus_wins
       WHERE chooser_id = ? AND TIMEDIFF(NOW(), date) <= '24:00:00';
-        `,
+     `,
       [userId],
     );
     return result;
@@ -90,7 +90,7 @@ export async function getUserFilters(userId) {
       `
        SELECT * FROM user_filters 
        WHERE user_id = ?;
-        `,
+      `,
       [userId],
     );
     return result;
