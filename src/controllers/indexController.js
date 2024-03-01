@@ -74,8 +74,8 @@ export async function getSuggestions(req, res) {
   } else {
     return res.status(401).json({
       statusCode: 401,
-      message: `An error occured`,
-      error: `An error occured`,
+      message: `You have exhausted your quota for today. Please consider going Pro if you wish to continue`,
+      error: `You have exhausted your quota for today. Please consider going Pro if you wish to continue`,
       data: [],
     });
   }
@@ -103,6 +103,13 @@ export async function countVersusWinsForUser(userId, totalAllowed) {
     allowed: versusWinCount < totalAllowed,
     versusWinCount,
   };
+}
+
+export async function getUserFilters(userId) {
+  // Query to get user filters by user ID
+  const query = "SELECT * FROM user_filters WHERE user_id = ?";
+  const [userFilters] = await db.query(query, [userId]);
+  return userFilters[0];
 }
 
 export async function searchUser(req, res) {

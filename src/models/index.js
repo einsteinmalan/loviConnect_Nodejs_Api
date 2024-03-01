@@ -84,6 +84,21 @@ export async function countVersusWins(userId) {
   }
 }
 
+export async function getUserFilters(userId) {
+  try {
+    const result = await connection.query(
+      `
+       SELECT * FROM user_filters 
+       WHERE user_id = ?;
+        `,
+      [userId],
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
 export async function getSuggestions(
   gender,
   sexPrefer,
