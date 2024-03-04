@@ -109,6 +109,7 @@ export async function getSuggestions(
   age_start,
   age_limit,
   interest,
+  zodiac,
 ) {
   try {
     let numbProfiles;
@@ -121,11 +122,11 @@ export async function getSuggestions(
 
     const result = await connection.query(
       `
-                SELECT u.id, u.fullname, u.online, u.zodiac_sign, u.is_blocked, u.active, u.profile_completed
+                SELECT u.id, u.fullname, u.online, p.zodiac_sign, u.is_blocked, u.active, u.profile_completed
                 p.gender, p.birthday, p.sexuality, p.avatar, p.biography,
-                p.location_lat, p.location_lon, p.fame, p.city, p.country, p.country_code 
-                FROM users AS u
-                LEFT JOIN profiles AS p on u.id = p.id_user
+                p.location_lat, p.location_lon, p.fame, p.city, p.country, p.country_code, CalculateZodiacCompatibility(p.zodiac_sign, ${zodiac}) AS compatibility
+                FROM users u
+                LEFT JOIN profiles p on u.id = p.id_user
                 WHERE p.gender = ?
                 AND u.is_blocked = 0
                 ANd u.active = 1

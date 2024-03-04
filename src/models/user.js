@@ -206,6 +206,7 @@ export async function createNewProfile(body, zodiac) {
       religion: religion,
       country_name: country_name,
       country_code: country_code,
+      zodiac_sign: zodiac,
     };
     const final_result = await connection.query(
       "INSERT INTO profiles SET ?",
@@ -302,7 +303,7 @@ export async function getUserSettings(userid) {
 export async function getProfileInfoById(userid) {
   try {
     const result = await connection.query(
-      `SELECT profiles.id_user, profiles.id, profiles.gender, profiles.birthday, profiles.biography, profiles.location_lat, profiles.location_lon, u.avatar, profiles.fame, profiles.city, u.fullname, u.online, profiles.country, profiles.country_code, profiles.city, u.zodiac_sign, u.active, u.is_blocked, u.creation_date
+      `SELECT profiles.id_user, profiles.id, profiles.gender, profiles.birthday, profiles.biography, profiles.location_lat, profiles.location_lon, u.avatar, profiles.fame, profiles.city, u.fullname, u.online, profiles.country, profiles.country_code, profiles.city, profiles.zodiac_sign, u.active, u.is_blocked, u.creation_date
             FROM profiles 
             LEFT JOIN users AS u on profiles.id_user = users.id 
             WHERE profiles.id_user = ?`,

@@ -36,6 +36,7 @@ export async function getSuggestions(req, res) {
           userSettings[0].age_start,
           userSettings[0].age_limit,
           userSettings[0].interest,
+          profile.zodiac_sign,
         );
         break;
       case "female":
@@ -50,6 +51,7 @@ export async function getSuggestions(req, res) {
           userSettings[0].age_start,
           userSettings[0].age_limit,
           userSettings[0].interest,
+          profile.zodiac_sign,
         );
         break;
       case "both":
@@ -64,6 +66,7 @@ export async function getSuggestions(req, res) {
           userSettings[0].age_start,
           userSettings[0].age_limit,
           userSettings[0].interest,
+          profile.zodiac_sign,
         );
         //   suggestions = await indexModel.getSuggestionsIfBi(
         //     range[0].latitude,
@@ -74,11 +77,13 @@ export async function getSuggestions(req, res) {
         //   );
         break;
     }
+
+    const data = suggestions[0];
     return res.status(200).json({
       statusCode: 200,
       message: `List of ${totalSwipe} potential match fetched`,
       error: null,
-      data: suggestions,
+      data: data,
     });
   } else {
     return res.status(401).json({
@@ -150,6 +155,184 @@ const sortInterests = (users, tags) => {
   return sortedUsers;
 };
 
+export async function calculateZodiacCompatibility(sign1, sign2) {
+  // Your zodiac compatibility logic goes here
+  // You can create a mapping or a set of rules to determine compatibility based on zodiac signs
+  // For simplicity, let's assume there's a predefined compatibility map
+  const compatibilityMap = {
+    Aries: {
+      Aries: 80,
+      Taurus: 50,
+      Gemini: 60,
+      Cancer: 30,
+      Leo: 70,
+      Virgo: 40,
+      Libra: 60,
+      Scorpio: 30,
+      Sagittarius: 70,
+      Capricorn: 40,
+      Aquarius: 60,
+      Pisces: 50,
+    },
+    Taurus: {
+      Aries: 50,
+      Taurus: 70,
+      Gemini: 40,
+      Cancer: 60,
+      Leo: 30,
+      Virgo: 70,
+      Libra: 50,
+      Scorpio: 60,
+      Sagittarius: 30,
+      Capricorn: 70,
+      Aquarius: 50,
+      Pisces: 40,
+    },
+    Gemini: {
+      Aries: 60,
+      Taurus: 40,
+      Gemini: 70,
+      Cancer: 50,
+      Leo: 60,
+      Virgo: 30,
+      Libra: 70,
+      Scorpio: 40,
+      Sagittarius: 60,
+      Capricorn: 30,
+      Aquarius: 50,
+      Pisces: 70,
+    },
+    Cancer: {
+      Aries: 30,
+      Taurus: 60,
+      Gemini: 50,
+      Cancer: 70,
+      Leo: 40,
+      Virgo: 60,
+      Libra: 30,
+      Scorpio: 70,
+      Sagittarius: 40,
+      Capricorn: 60,
+      Aquarius: 70,
+      Pisces: 50,
+    },
+    Leo: {
+      Aries: 70,
+      Taurus: 30,
+      Gemini: 60,
+      Cancer: 40,
+      Leo: 70,
+      Virgo: 50,
+      Libra: 60,
+      Scorpio: 30,
+      Sagittarius: 70,
+      Capricorn: 40,
+      Aquarius: 50,
+      Pisces: 60,
+    },
+    Virgo: {
+      Aries: 40,
+      Taurus: 70,
+      Gemini: 30,
+      Cancer: 60,
+      Leo: 50,
+      Virgo: 70,
+      Libra: 40,
+      Scorpio: 60,
+      Sagittarius: 50,
+      Capricorn: 70,
+      Aquarius: 60,
+      Pisces: 30,
+    },
+    Libra: {
+      Aries: 60,
+      Taurus: 50,
+      Gemini: 70,
+      Cancer: 30,
+      Leo: 60,
+      Virgo: 40,
+      Libra: 70,
+      Scorpio: 50,
+      Sagittarius: 60,
+      Capricorn: 40,
+      Aquarius: 70,
+      Pisces: 50,
+    },
+    Scorpio: {
+      Aries: 30,
+      Taurus: 60,
+      Gemini: 40,
+      Cancer: 70,
+      Leo: 30,
+      Virgo: 60,
+      Libra: 50,
+      Scorpio: 70,
+      Sagittarius: 30,
+      Capricorn: 60,
+      Aquarius: 50,
+      Pisces: 60,
+    },
+    Sagittarius: {
+      Aries: 70,
+      Taurus: 30,
+      Gemini: 60,
+      Cancer: 40,
+      Leo: 70,
+      Virgo: 50,
+      Libra: 60,
+      Scorpio: 30,
+      Sagittarius: 70,
+      Capricorn: 40,
+      Aquarius: 50,
+      Pisces: 60,
+    },
+    Capricorn: {
+      Aries: 40,
+      Taurus: 70,
+      Gemini: 30,
+      Cancer: 60,
+      Leo: 40,
+      Virgo: 70,
+      Libra: 40,
+      Scorpio: 60,
+      Sagittarius: 40,
+      Capricorn: 70,
+      Aquarius: 30,
+      Pisces: 60,
+    },
+    Aquarius: {
+      Aries: 60,
+      Taurus: 50,
+      Gemini: 50,
+      Cancer: 70,
+      Leo: 50,
+      Virgo: 60,
+      Libra: 70,
+      Scorpio: 50,
+      Sagittarius: 50,
+      Capricorn: 30,
+      Aquarius: 70,
+      Pisces: 50,
+    },
+    Pisces: {
+      Aries: 30,
+      Taurus: 30,
+      Gemini: 80,
+      Cancer: 30,
+      Leo: 60,
+      Virgo: 40,
+      Libra: 40,
+      Scorpio: 80,
+      Sagittarius: 40,
+      Capricorn: 60,
+      Aquarius: 80,
+      Pisces: 70,
+    },
+  };
+
+  return compatibilityMap[sign1][sign2] || 0;
+}
+
 export async function filterUser(req, res) {
   const profile = await userModel.getProfileInfoById(req.userid);
   let range = geolib.getBoundsOfDistance(
@@ -174,9 +357,9 @@ export async function filterUser(req, res) {
         break;
     }
   }
-  let sexPrefer = req.body.sexPrefer;
+  let sexPrefer = req.body.sexuality;
   if (!sexPrefer) {
-    sexPrefer = profile.sex_prefer;
+    sexPrefer = profile.sexuality;
   }
   let tags = req.body.selectedInterests;
   let users = await indexModel.filterUser(

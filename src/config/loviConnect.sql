@@ -147,8 +147,10 @@ CREATE TABLE IF NOT EXISTS `profiles` (
   `sexuality` ENUM('heterosexual', 'homosexual','bisexual') DEFAULT 'heterosexual',
   `birthday` date DEFAULT NULL,
   `biography` varchar(500) DEFAULT NULL,
+  `my_contribution` varchar(500) DEFAULT NULL,
   `location_lat` float DEFAULT NULL,
   `location_lon` float DEFAULT NULL,
+  `zodiac_sign` varchar(255) DEFAULT NULL,
   `job` varchar(255) DEFAULT NULL,
   `relationship_status` ENUM('single','engaged', 'in-relationship','married', 'divorcee', 'complicated') NOT NULL DEFAULT 'single',
   `looking_for` ENUM('friendship', 'relationship','fun') NOT NULL DEFAULT 'friendship',
@@ -322,6 +324,230 @@ CREATE TABLE IF NOT EXISTS `admin_settings` (
   `maintenance_active`  tinyint(1) NOT NULL DEFAULT "0",
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- FUNCTION CalculateZodiacCompatibility TO CALCULATE COMPATIBILITY
+DELIMITER //
+CREATE FUNCTION CalculateZodiacCompatibility(sign1 VARCHAR(255), sign2 VARCHAR(255)) RETURNS INT
+BEGIN
+  DECLARE compatibility INT;
+
+  -- Your zodiac compatibility logic goes here
+  -- For simplicity, let's assume there's a predefined compatibility map
+  -- SELECT CalculateZodiacCompatibility('Aries', 'Taurus') AS compatibility;
+  CASE sign1
+    WHEN 'Aries' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 80;
+        WHEN 'Taurus' THEN SET compatibility = 50;
+        WHEN 'Gemini' THEN SET compatibility = 60;
+        WHEN 'Cancer' THEN SET compatibility = 30;
+        WHEN 'Leo' THEN SET compatibility = 70;
+        WHEN 'Virgo' THEN SET compatibility = 40;
+        WHEN 'Libra' THEN SET compatibility = 60;
+        WHEN 'Scorpio' THEN SET compatibility = 30;
+        WHEN 'Sagittarius' THEN SET compatibility = 70;
+        WHEN 'Capricorn' THEN SET compatibility = 40;
+        WHEN 'Aquarius' THEN SET compatibility = 60;
+        WHEN 'Pisces' THEN SET compatibility = 50;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Taurus' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 50;
+        WHEN 'Taurus' THEN SET compatibility = 70;
+        WHEN 'Gemini' THEN SET compatibility = 40;
+        WHEN 'Cancer' THEN SET compatibility = 60;
+        WHEN 'Leo' THEN SET compatibility = 30;
+        WHEN 'Virgo' THEN SET compatibility = 70;
+        WHEN 'Libra' THEN SET compatibility = 50;
+        WHEN 'Scorpio' THEN SET compatibility = 60;
+        WHEN 'Sagittarius' THEN SET compatibility = 30;
+        WHEN 'Capricorn' THEN SET compatibility = 70;
+        WHEN 'Aquarius' THEN SET compatibility = 50;
+        WHEN 'Pisces' THEN SET compatibility = 40;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Gemini' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 60;
+        WHEN 'Taurus' THEN SET compatibility = 40;
+        WHEN 'Gemini' THEN SET compatibility = 70;
+        WHEN 'Cancer' THEN SET compatibility = 50;
+        WHEN 'Leo' THEN SET compatibility = 60;
+        WHEN 'Virgo' THEN SET compatibility = 30;
+        WHEN 'Libra' THEN SET compatibility = 70;
+        WHEN 'Scorpio' THEN SET compatibility = 40;
+        WHEN 'Sagittarius' THEN SET compatibility = 60;
+        WHEN 'Capricorn' THEN SET compatibility = 30;
+        WHEN 'Aquarius' THEN SET compatibility = 50;
+        WHEN 'Pisces' THEN SET compatibility = 70;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Cancer' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 30;
+        WHEN 'Taurus' THEN SET compatibility = 60;
+        WHEN 'Gemini' THEN SET compatibility = 50;
+        WHEN 'Cancer' THEN SET compatibility = 70;
+        WHEN 'Leo' THEN SET compatibility = 40;
+        WHEN 'Virgo' THEN SET compatibility = 60;
+        WHEN 'Libra' THEN SET compatibility = 30;
+        WHEN 'Scorpio' THEN SET compatibility = 70;
+        WHEN 'Sagittarius' THEN SET compatibility = 40;
+        WHEN 'Capricorn' THEN SET compatibility = 60;
+        WHEN 'Aquarius' THEN SET compatibility = 70;
+        WHEN 'Pisces' THEN SET compatibility = 50;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Leo' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 70;
+        WHEN 'Taurus' THEN SET compatibility = 30;
+        WHEN 'Gemini' THEN SET compatibility = 60;
+        WHEN 'Cancer' THEN SET compatibility = 40;
+        WHEN 'Leo' THEN SET compatibility = 70;
+        WHEN 'Virgo' THEN SET compatibility = 50;
+        WHEN 'Libra' THEN SET compatibility = 60;
+        WHEN 'Scorpio' THEN SET compatibility = 30;
+        WHEN 'Sagittarius' THEN SET compatibility = 70;
+        WHEN 'Capricorn' THEN SET compatibility = 40;
+        WHEN 'Aquarius' THEN SET compatibility = 50;
+        WHEN 'Pisces' THEN SET compatibility = 60;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Virgo' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 40;
+        WHEN 'Taurus' THEN SET compatibility = 70;
+        WHEN 'Gemini' THEN SET compatibility = 30;
+        WHEN 'Cancer' THEN SET compatibility = 60;
+        WHEN 'Leo' THEN SET compatibility = 50;
+        WHEN 'Virgo' THEN SET compatibility = 70;
+        WHEN 'Libra' THEN SET compatibility = 40;
+        WHEN 'Scorpio' THEN SET compatibility = 60;
+        WHEN 'Sagittarius' THEN SET compatibility = 50;
+        WHEN 'Capricorn' THEN SET compatibility = 70;
+        WHEN 'Aquarius' THEN SET compatibility = 60;
+        WHEN 'Pisces' THEN SET compatibility = 30;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Libra' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 60;
+        WHEN 'Taurus' THEN SET compatibility = 50;
+        WHEN 'Gemini' THEN SET compatibility = 70;
+        WHEN 'Cancer' THEN SET compatibility = 30;
+        WHEN 'Leo' THEN SET compatibility = 60;
+        WHEN 'Virgo' THEN SET compatibility = 40;
+        WHEN 'Libra' THEN SET compatibility = 70;
+        WHEN 'Scorpio' THEN SET compatibility = 50;
+        WHEN 'Sagittarius' THEN SET compatibility = 60;
+        WHEN 'Capricorn' THEN SET compatibility = 40;
+        WHEN 'Aquarius' THEN SET compatibility = 70;
+        WHEN 'Pisces' THEN SET compatibility = 50;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Scorpio' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 30;
+        WHEN 'Taurus' THEN SET compatibility = 60;
+        WHEN 'Gemini' THEN SET compatibility = 40;
+        WHEN 'Cancer' THEN SET compatibility = 70;
+        WHEN 'Leo' THEN SET compatibility = 30;
+        WHEN 'Virgo' THEN SET compatibility = 60;
+        WHEN 'Libra' THEN SET compatibility = 50;
+        WHEN 'Scorpio' THEN SET compatibility = 70;
+        WHEN 'Sagittarius' THEN SET compatibility = 30;
+        WHEN 'Capricorn' THEN SET compatibility = 60;
+        WHEN 'Aquarius' THEN SET compatibility = 50;
+        WHEN 'Pisces' THEN SET compatibility = 60;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Sagittarius' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 70;
+        WHEN 'Taurus' THEN SET compatibility = 30;
+        WHEN 'Gemini' THEN SET compatibility = 60;
+        WHEN 'Cancer' THEN SET compatibility = 40;
+        WHEN 'Leo' THEN SET compatibility = 70;
+        WHEN 'Virgo' THEN SET compatibility = 50;
+        WHEN 'Libra' THEN SET compatibility = 60;
+        WHEN 'Scorpio' THEN SET compatibility = 30;
+        WHEN 'Sagittarius' THEN SET compatibility = 70;
+        WHEN 'Capricorn' THEN SET compatibility = 40;
+        WHEN 'Aquarius' THEN SET compatibility = 50;
+        WHEN 'Pisces' THEN SET compatibility = 60;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Capricorn' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 40;
+        WHEN 'Taurus' THEN SET compatibility = 70;
+        WHEN 'Gemini' THEN SET compatibility = 30;
+        WHEN 'Cancer' THEN SET compatibility = 60;
+        WHEN 'Leo' THEN SET compatibility = 40;
+        WHEN 'Virgo' THEN SET compatibility = 70;
+        WHEN 'Libra' THEN SET compatibility = 40;
+        WHEN 'Scorpio' THEN SET compatibility = 60;
+        WHEN 'Sagittarius' THEN SET compatibility = 40;
+        WHEN 'Capricorn' THEN SET compatibility = 70;
+        WHEN 'Aquarius' THEN SET compatibility = 30;
+        WHEN 'Pisces' THEN SET compatibility = 60;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Aquarius' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 60;
+        WHEN 'Taurus' THEN SET compatibility = 50;
+        WHEN 'Gemini' THEN SET compatibility = 50;
+        WHEN 'Cancer' THEN SET compatibility = 70;
+        WHEN 'Leo' THEN SET compatibility = 50;
+        WHEN 'Virgo' THEN SET compatibility = 60;
+        WHEN 'Libra' THEN SET compatibility = 70;
+        WHEN 'Scorpio' THEN SET compatibility = 50;
+        WHEN 'Sagittarius' THEN SET compatibility = 50;
+        WHEN 'Capricorn' THEN SET compatibility = 30;
+        WHEN 'Aquarius' THEN SET compatibility = 70;
+        WHEN 'Pisces' THEN SET compatibility = 50;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;
+    WHEN 'Pisces' THEN
+      CASE sign2
+        WHEN 'Aries' THEN SET compatibility = 30;
+        WHEN 'Taurus' THEN SET compatibility = 30;
+        WHEN 'Gemini' THEN SET compatibility = 80;
+        WHEN 'Cancer' THEN SET compatibility = 30;
+        WHEN 'Leo' THEN SET compatibility = 60;
+        WHEN 'Virgo' THEN SET compatibility = 40;
+        WHEN 'Libra' THEN SET compatibility = 40;
+        WHEN 'Scorpio' THEN SET compatibility = 80;
+        WHEN 'Sagittarius' THEN SET compatibility = 40;
+        WHEN 'Capricorn' THEN SET compatibility = 60;
+        WHEN 'Aquarius' THEN SET compatibility = 80;
+        WHEN 'Pisces' THEN SET compatibility = 70;
+        -- Add mappings for other zodiac signs
+        ELSE SET compatibility = 0;
+      END CASE;                                                            
+    -- Add cases for other zodiac signs
+    ELSE SET compatibility = 0;
+  END CASE;
+
+  RETURN compatibility;
+END //
+DELIMITER ;
+
 
 
 

@@ -21,7 +21,7 @@ export async function activeAccount(email, username, active_link) {
         <br>
         <p>Thank you for your registration on LoviConnect.</p>
         <p>Please click the link below to active your account: </p>
-        <a href="http:localhost:3000/register/${active_link}">Click Me</a>
+        <a href="http:localhost:3000/user/active/${active_link}">Click Me</a>
       </body>
     </html>
     `;
