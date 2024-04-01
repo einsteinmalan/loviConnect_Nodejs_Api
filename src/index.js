@@ -76,7 +76,7 @@ app.use("/user-settings/", userSettingRoute);
 app.use("/user-interest/", userInterestRoute);
 app.use("/versus-win/", versusWinsRoute);
 
-app.get("/generate", (req, res) => {
+app.get("/generate-fake", (req, res) => {
   generateUser.generateUser();
   res.send({ message: "1000 Users generated" });
 });

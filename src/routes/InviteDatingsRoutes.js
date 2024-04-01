@@ -1,21 +1,25 @@
-import express from 'express';
-import * as InviteDatingsController from '../controllers/InviteDatingsController';
-
+const express = require("express");
 const router = express.Router();
+const InviteDatingsController = require("../controllers/InviteDatingsController");
+const auth = require("../middleware/auth");
 
 // Create Invite Dating
-router.post('/invite-datings', InviteDatingsController.createInviteDating);
+router.route("/create").post(auth, InviteDatingsController.createInviteDating);
 
 // Get Invite Dating by ID
-router.get('/invite-datings/:inviteId', InviteDatingsController.getInviteDating);
+router.route("/:inviteId").get(auth, InviteDatingsController.getInviteDating);
 
 // Get all Invite Datings for a user
-router.get('/invite-datings/user/:userId', InviteDatingsController.getAllInviteDatingsByUser);
+router
+  .route("/user/:userId")
+  .get(auth, InviteDatingsController.getAllInviteDatingsByUser);
 
 // Update Invite Dating
-router.put('/invite-datings/:inviteId', InviteDatingsController.updateInviteDating);
+router.route("/update").post(auth, InviteDatingsController.updateInviteDating);
 
 // Delete Invite Dating
-router.delete('/invite-datings/:inviteId', InviteDatingsController.deleteInviteDating);
+router
+  .route("/delete/:inviteId")
+  .get(auth, InviteDatingsController.deleteInviteDating);
 
-export default router;
+module.exports = router;

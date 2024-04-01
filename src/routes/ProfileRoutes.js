@@ -1,22 +1,21 @@
-
-import express from 'express';
-import * as ProfileController from '../controllers/ProfileController';
-
+const express = require("express");
 const router = express.Router();
+const ProfileController = require("../controllers/ProfileController");
+const auth = require("../middleware/auth");
 
 // Create Profile
-router.post('/profiles', ProfileController.createProfile);
+router.route("/create").post(auth, ProfileController.createProfile);
 
 // Get Profile by ID
-router.get('/profiles/:profileId', ProfileController.getProfile);
+router.route("/:profileId").get(auth, ProfileController.getProfile);
 
 // Get all Profiles for a user
-router.get('/profiles/user/:userId', ProfileController.getAllProfilesByUser);
+router.route("/user/:userId").get(auth, ProfileController.getAllProfilesByUser);
 
 // Update Profile
-router.put('/profiles/:profileId', ProfileController.updateProfile);
+router.route("/update").post(auth, ProfileController.updateProfile);
 
 // Delete Profile
-router.delete('/profiles/:profileId', ProfileController.deleteProfile);
+router.route("/delete/:profileId").get(auth, ProfileController.deleteProfile);
 
-export default router;
+module.exports = router;

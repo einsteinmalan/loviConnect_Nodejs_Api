@@ -1,21 +1,15 @@
-import express from 'express';
-import * as BoosterController from '../controllers/BoosterController';
-
+const express = require("express");
 const router = express.Router();
+const BoosterController = require("../controllers/BoosterController");
+const auth = require("../middleware/auth");
 
 // Create Booster
-router.post('/boosters', BoosterController.createBooster);
+router.route("/create").post(auth, BoosterController.createBooster);
 
 // Get Booster by ID
-router.get('/boosters/:boosterId', BoosterController.getBooster);
+router.route("/:boosterId").get(auth, BoosterController.getBooster);
 
 // Get Boosters by User
-router.get('/boosters/user/:userId', BoosterController.getBoostersByUser);
+router.get("/user/:userId").get(auth, BoosterController.getBoostersByUser);
 
-// Update Booster
-router.put('/boosters/:boosterId', BoosterController.updateBooster);
-
-// Delete Booster
-router.delete('/boosters/:boosterId', BoosterController.deleteBooster);
-
-export default router;
+module.exports = router;

@@ -170,6 +170,36 @@ CREATE TABLE IF NOT EXISTS `admins` (
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ticket_type`
+--
+
+CREATE TABLE `ticket_type` (
+  `id` char(36) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reply`
+--
+
+CREATE TABLE IF NOT EXISTS `supports` (
+  `id` char(36) NOT NULL,
+  `user_id` char(36) NOT NULL,
+  `support_id` char(36) NOT NULL,
+   `reply` text DEFAULT NULL ,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- --------------------------------------------------------
+
 --
 -- Table structure for table `supports`
 --
@@ -179,7 +209,6 @@ CREATE TABLE IF NOT EXISTS `supports` (
   `user_id` char(36) NOT NULL,
   `ticket_type_id` char(36) NOT NULL,
   `complaints` text NOT NULL,
-   `reply` text DEFAULT NULL ,
   `status` enum('pending','in-progress','resolved','cancelled') DEFAULT 'pending',
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

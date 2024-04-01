@@ -1,21 +1,25 @@
-import express from 'express';
-import * as SysBlockController from '../controllers/SysBlockController';
-
+const express = require("express");
 const router = express.Router();
+const SysBlockController = require("../controllers/SysBlockController");
+const auth = require("../middleware/auth");
 
 // Create System Block
-router.post('/sys-blocks', SysBlockController.createSysBlock);
+router.route("/create").post(auth, SysBlockController.createSysBlock);
 
 // Get System Block by ID
-router.get('/sys-blocks/:sysBlockId', SysBlockController.getSysBlock);
+router.route("/:sysBlockId").get(auth, SysBlockController.getSysBlock);
 
 // Get all System Blocks for a user
-router.get('/sys-blocks/user/:userId', SysBlockController.getAllSysBlocksByUser);
+router
+  .route("/user/:userId")
+  .get(auth, SysBlockController.getAllSysBlocksByUser);
 
 // Update System Block
-router.put('/sys-blocks/:sysBlockId', SysBlockController.updateSysBlock);
+router.route("/update").post(auth, SysBlockController.updateSysBlock);
 
 // Delete System Block
-router.delete('/sys-blocks/:sysBlockId', SysBlockController.deleteSysBlock);
+router
+  .route("/delete/:sysBlockId")
+  .get(auth, SysBlockController.deleteSysBlock);
 
-export default router;
+module.exports = router;

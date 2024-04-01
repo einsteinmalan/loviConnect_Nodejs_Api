@@ -1,21 +1,21 @@
-import express from 'express';
-import * as SupportController from '../controllers/SupportController';
-
+const express = require("express");
 const router = express.Router();
+const SupportController = require("../controllers/SupportController");
+const auth = require("../middleware/auth");
 
 // Create Support ticket
-router.post('/supports', SupportController.createSupport);
+router.route("/create").post(auth, SupportController.createSupport);
 
 // Get Support ticket by ID
-router.get('/supports/:supportId', SupportController.getSupport);
+router.route("/:supportId").get(auth, SupportController.getSupport);
 
 // Get all Support tickets for a user
-router.get('/supports/user/:userId', SupportController.getAllSupportsByUser);
+router.route("/user/:userId").get(auth, SupportController.getAllSupportsByUser);
 
 // Update Support ticket
-router.put('/supports/:supportId', SupportController.updateSupport);
+router.route("/update").post(auth, SupportController.updateSupport);
 
 // Delete Support ticket
-router.delete('/supports/:supportId', SupportController.deleteSupport);
+router.route("/delete/:supportId").get(auth, SupportController.deleteSupport);
 
-export default router;
+module.exports = router;

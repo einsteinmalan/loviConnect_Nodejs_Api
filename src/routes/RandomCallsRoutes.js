@@ -1,21 +1,25 @@
-import express from 'express';
-import * as RandomCallsController from '../controllers/RandomCallsController';
-
+const express = require("express");
 const router = express.Router();
+const RandomCallsController = require("../controllers/RandomCallsController");
+const auth = require("../middleware/auth");
 
 // Create Random Call
-router.post('/random-calls', RandomCallsController.createRandomCall);
+router.route("/create").post(auth, RandomCallsController.createRandomCall);
 
 // Get Random Call by ID
-router.get('/random-calls/:callId', RandomCallsController.getRandomCall);
+router.route("/:callId").get(auth, RandomCallsController.getRandomCall);
 
 // Get all Random Calls for a user
-router.get('/random-calls/user/:userId', RandomCallsController.getAllRandomCallsByUser);
+router
+  .route("/user/:userId")
+  .get(auth, RandomCallsController.getAllRandomCallsByUser);
 
 // Update Random Call
-router.put('/random-calls/:callId', RandomCallsController.updateRandomCall);
+router.route("/update").post(auth, RandomCallsController.updateRandomCall);
 
 // Delete Random Call
-router.delete('/random-calls/:callId', RandomCallsController.deleteRandomCall);
+router
+  .route("/delete/:callId")
+  .get(auth, RandomCallsController.deleteRandomCall);
 
-export default router;
+module.exports = router;

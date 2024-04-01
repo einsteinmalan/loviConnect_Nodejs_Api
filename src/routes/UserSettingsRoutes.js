@@ -1,21 +1,25 @@
-import express from 'express';
-import * as UserSettingsController from '../controllers/UserSettingsController';
-
+const express = require("express");
 const router = express.Router();
+const UserSettingsController = require("../controllers/UserSettingsController");
+const auth = require("../middleware/auth");
 
 // Create User Settings
-router.post('/user-settings', UserSettingsController.createUserSettings);
+router.route("/create").post(auth, UserSettingsController.createUserSettings);
 
 // Get User Settings by ID
-router.get('/user-settings/:settingsId', UserSettingsController.getUserSettings);
+router.route("/:settingsId").get(auth, UserSettingsController.getUserSettings);
 
 // Get User Settings by User
-router.get('/user-settings/user/:userId', UserSettingsController.getUserSettingsByUser);
+router
+  .route("/user/:userId")
+  .get(auth, UserSettingsController.getUserSettingsByUser);
 
 // Update User Settings
-router.put('/user-settings/:settingsId', UserSettingsController.updateUserSettings);
+router.route("/update").post(auth, UserSettingsController.updateUserSettings);
 
 // Delete User Settings
-router.delete('/user-settings/:settingsId', UserSettingsController.deleteUserSettings);
+router
+  .route("/delete/:settingsId")
+  .get(auth, UserSettingsController.deleteUserSettings);
 
-export default router;
+module.exports = router;

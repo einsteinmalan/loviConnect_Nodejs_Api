@@ -1,21 +1,27 @@
-import express from 'express';
-import * as UsersInterestsController from '../controllers/UsersInterestsController';
-
+const express = require("express");
 const router = express.Router();
+const UsersInterestsController = require("../controllers/UsersInterestsController");
+const auth = require("../middleware/auth");
 
 // Create User Interest
-router.post('/users-interests', UsersInterestsController.createUserInterest);
+router.route("/create").post(auth, UsersInterestsController.createUserInterest);
 
 // Get User Interest by ID
-router.get('/users-interests/:userInterestId', UsersInterestsController.getUserInterest);
+router
+  .route("/:userInterestId")
+  .get(auth, UsersInterestsController.getUserInterest);
 
 // Get all User Interests for a user
-router.get('/users-interests/user/:userId', UsersInterestsController.getAllUserInterestsByUser);
+router
+  .route("/user/:userId")
+  .get(auth, UsersInterestsController.getAllUserInterestsByUser);
 
 // Update User Interest
-router.put('/users-interests/:userInterestId', UsersInterestsController.updateUserInterest);
+router.route("/update").post(auth, UsersInterestsController.updateUserInterest);
 
 // Delete User Interest
-router.delete('/users-interests/:userInterestId', UsersInterestsController.deleteUserInterest);
+router
+  .route("/delete/:userInterestId")
+  .get(auth, UsersInterestsController.deleteUserInterest);
 
-export default router;
+module.exports = router;

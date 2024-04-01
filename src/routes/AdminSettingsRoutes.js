@@ -1,15 +1,16 @@
-import express from 'express';
-import * as AdminSettingsController from '../controllers/AdminSettingsController';
-
+const express = require("express");
 const router = express.Router();
+const AdminSettingsController = require("../controllers/AdminSettingsController");
+const auth = require("../middleware/auth");
+
+//import * as AdminSettingsController from "../controllers/AdminSettingsController";
 
 // Create Admin Settings
-router.post('/admin-settings', AdminSettingsController.createAdminSettings);
+router.route("/create").post(auth, AdminSettingsController.createAdminSettings);
 
 // Get Admin Settings by ID
-router.get('/admin-settings/:adminSettingsId', AdminSettingsController.getAdminSettings);
+router
+  .route("/:adminSettingsId")
+  .get(auth, AdminSettingsController.getAdminSettings);
 
-// Update Admin Settings
-router.put('/admin-settings/:adminSettingsId', AdminSettingsController.updateAdminSettings);
-
-export default router;
+module.exports = router;

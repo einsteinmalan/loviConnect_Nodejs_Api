@@ -1,22 +1,31 @@
-
-import express from 'express';
-import * as UserPersonalityTestController from '../controllers/UserPersonalityTestController';
-
+const express = require("express");
 const router = express.Router();
+const UserPersonalityTestController = require("../controllers/UserPersonalityTestController");
+const auth = require("../middleware/auth");
 
 // Create User Personality test
-router.post('/user-personality-tests', UserPersonalityTestController.createUserPersonalityTest);
+router
+  .route("/create")
+  .post(auth, UserPersonalityTestController.createUserPersonalityTest);
 
 // Get User Personality test by ID
-router.get('/user-personality-tests/:testId', UserPersonalityTestController.getUserPersonalityTest);
+router
+  .route("/:testId")
+  .get(auth, UserPersonalityTestController.getUserPersonalityTest);
 
 // Get all User Personality tests for a user
-router.get('/user-personality-tests/user/:userId', UserPersonalityTestController.getAllUserPersonalityTestsByUser);
+router
+  .route("/user/:userId")
+  .get(auth, UserPersonalityTestController.getAllUserPersonalityTestsByUser);
 
 // Update User Personality test
-router.put('/user-personality-tests/:testId', UserPersonalityTestController.updateUserPersonalityTest);
+router
+  .route("/update")
+  .post(auth, UserPersonalityTestController.updateUserPersonalityTest);
 
 // Delete User Personality test
-router.delete('/user-personality-tests/:testId', UserPersonalityTestController.deleteUserPersonalityTest);
+router
+  .route("/delete/:testId")
+  .get(auth, UserPersonalityTestController.deleteUserPersonalityTest);
 
-export default router;
+module.exports = router;

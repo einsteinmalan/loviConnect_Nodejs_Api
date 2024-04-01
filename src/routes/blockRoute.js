@@ -1,21 +1,15 @@
-import express from 'express';
-import * as BlockController from '../controllers/blockController';
-
+const express = require("express");
 const router = express.Router();
+const BlockController = require("../controllers/blockController");
+const auth = require("../middleware/auth");
 
 // Create block
-router.post('/blocks', BlockController.createBlock);
+router.route("/create").post(auth, BlockController.createBlock);
 
 // Get block by ID
-router.get('/blocks/:blockId', BlockController.getBlock);
+router.route("/:blockId").get(auth, BlockController.getBlock);
 
 // Get all blocks for a user
-router.get('/blocks/user/:userId', BlockController.getAllBlocksByUser);
+router.route("/user/:userId").get(auth, BlockController.getAllBlocksByUser);
 
-// Update block
-router.put('/blocks/:blockId', BlockController.updateBlock);
-
-// Delete block
-router.delete('/blocks/:blockId', BlockController.deleteBlock);
-
-export default router;
+module.exports = router;

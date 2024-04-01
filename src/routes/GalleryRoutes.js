@@ -1,21 +1,23 @@
-import express from 'express';
-import * as GalleryController from '../controllers/GalleryController';
-
+const express = require("express");
 const router = express.Router();
+const GalleryController = require("../controllers/GalleryController");
+const auth = require("../middleware/auth");
 
 // Create Gallery entry
-router.post('/galleries', GalleryController.createGallery);
+router.route("/create").post(auth, GalleryController.createGallery);
 
 // Get Gallery entry by ID
-router.get('/galleries/:galleryId', GalleryController.getGallery);
+router.route("/:galleryId").get(auth, GalleryController.getGallery);
 
 // Get all Gallery entries for a user
-router.get('/galleries/user/:userId', GalleryController.getAllGalleriesByUser);
+router
+  .route("/user/:userId")
+  .get(auth, GalleryController.getAllGalleriesByUser);
 
 // Update Gallery entry
-router.put('/galleries/:galleryId', GalleryController.updateGallery);
+router.route("/update").post(auth, GalleryController.updateGallery);
 
 // Delete Gallery entry
-router.delete('/galleries/:galleryId', GalleryController.deleteGallery);
+router.route("/delete/:galleryId").get(auth, GalleryController.deleteGallery);
 
-export default router;
+module.exports = router;

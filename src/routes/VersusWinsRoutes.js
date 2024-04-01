@@ -1,21 +1,25 @@
-import express from 'express';
-import * as VersusWinsController from '../controllers/VersusWinsController';
-
+const express = require("express");
 const router = express.Router();
+const VersusWinsController = require("../controllers/VersusWinsController");
+const auth = require("../middleware/auth");
 
 // Create Versus Win
-router.post('/versus-wins', VersusWinsController.createVersusWin);
+router.route("/create").post(auth, VersusWinsController.createVersusWin);
 
 // Get Versus Win by ID
-router.get('/versus-wins/:versusWinId', VersusWinsController.getVersusWin);
+router.route("/:versusWinId").get(auth, VersusWinsController.getVersusWin);
 
 // Get Versus Wins by User
-router.get('/versus-wins/user/:userId', VersusWinsController.getVersusWinsByUser);
+router
+  .route("/user/:userId")
+  .get(auth, VersusWinsController.getVersusWinsByUser);
 
 // Update Versus Win
-router.put('/versus-wins/:versusWinId', VersusWinsController.updateVersusWin);
+router.route("/update").post(auth, VersusWinsController.updateVersusWin);
 
 // Delete Versus Win
-router.delete('/versus-wins/:versusWinId', VersusWinsController.deleteVersusWin);
+router
+  .route("/delete/:versusWinId")
+  .get(auth, VersusWinsController.deleteVersusWin);
 
-export default router;
+module.exports = router;

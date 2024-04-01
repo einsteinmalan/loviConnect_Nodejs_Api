@@ -1,21 +1,31 @@
-import express from 'express';
-import * as RandomCallQuotasController from '../controllers/RandomCallQuotasController';
-
+const express = require("express");
 const router = express.Router();
+const RandomCallQuotasController = require("../controllers/RandomCallQuotasController");
+const auth = require("../middleware/auth");
 
 // Create Random Call Quota
-router.post('/random-call-quotas', RandomCallQuotasController.createRandomCallQuota);
+router
+  .route("/create")
+  .post(auth, RandomCallQuotasController.createRandomCallQuota);
 
 // Get Random Call Quota by ID
-router.get('/random-call-quotas/:quotaId', RandomCallQuotasController.getRandomCallQuota);
+router
+  .route("/:quotaId")
+  .get(auth, RandomCallQuotasController.getRandomCallQuota);
 
 // Get Random Call Quota by User
-router.get('/random-call-quotas/user/:userId', RandomCallQuotasController.getRandomCallQuotaByUser);
+router
+  .route("/user/:userId")
+  .get(auth, RandomCallQuotasController.getRandomCallQuotaByUser);
 
 // Update Random Call Quota
-router.put('/random-call-quotas/:quotaId', RandomCallQuotasController.updateRandomCallQuota);
+router
+  .route("/update")
+  .post(auth, RandomCallQuotasController.updateRandomCallQuota);
 
 // Delete Random Call Quota
-router.delete('/random-call-quotas/:quotaId', RandomCallQuotasController.deleteRandomCallQuota);
+router
+  .route("/delete/:quotaId")
+  .get(auth, RandomCallQuotasController.deleteRandomCallQuota);
 
-export default router;
+module.exports = router;

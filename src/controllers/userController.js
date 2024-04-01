@@ -583,7 +583,7 @@ export async function reportFake(req, res) {
       await userModel.addFame(-500, data.id_user);
       const count = await userModel.countFake(data.id_user);
       if (count >= 50) {
-        await userModel.deleteUser(data.id_user);
+        //await userModel.deleteUser(data.id_user);
         await userModel.hibernateAccount("1", data.id_user);
         //Hibernate fake account
         return res.status(200).json({
