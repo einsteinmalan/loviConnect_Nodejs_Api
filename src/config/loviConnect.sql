@@ -1,49 +1,61 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.0
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:8889
+-- Generation Time: Jan 15, 2024 at 08:20 AM
+-- Server version: 5.7.39
+-- PHP Version: 7.4.33
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-/*!4001 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
-CREATE DATABASE IF NOT EXISTS `lovichat` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `lovichat`;
+--
+-- Database: `lovichat`
+--
 
-CREATE TABLE IF NOT EXISTS `blocks` (
+
+
+CREATE TABLE  `blocks` (
   `id_block` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user`  CHAR(36) NOT NULL,
   `id_sender`  CHAR(36) NOT NULL,
   `block_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `sys_blocks` (
+CREATE TABLE  `sys_blocks` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user`  CHAR(36) NOT NULL,
   `reason` TEXT 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `chatrooms` (
+CREATE TABLE  `chatrooms` (
   `id_chatroom`  CHAR(36) NOT NULL PRIMARY KEY,
   `id_user_1` CHAR(36) NOT NULL ,
   `id_user_2` CHAR(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `fake_profile` (
+CREATE TABLE  `fake_profile` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `fakes` (
+CREATE TABLE  `fakes` (
   `id_fake` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
   `id_sender` CHAR(36) NOT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `interests` (
+CREATE TABLE  `interests` (
   `id` INT NOT NULL PRIMARY KEY ,
   `interest` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -93,14 +105,14 @@ INSERT INTO `interests` (`id`, `interest`) VALUES
 (41, 'Lack of love for pets');
 
 
-CREATE TABLE IF NOT EXISTS `likes` (
+CREATE TABLE  `likes` (
   `id_likes` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
   `id_sender` CHAR(36) NOT NULL,
   `like_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `messages` (
+CREATE TABLE  `messages` (
   `id_message` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_chatroom` CHAR(36) NOT NULL,
   `id_sender` CHAR(36) NOT NULL ,
@@ -110,37 +122,37 @@ CREATE TABLE IF NOT EXISTS `messages` (
   `readed` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `notifications` (
+CREATE TABLE  `notifications` (
   `id_notif` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) DEFAULT NULL,
   `id_sender` CHAR(36) NOT NULL,
   `notification` varchar(25) NOT NULL,
   `type` ENUM('Personal', 'System') NOT NULL DEFAULT 'Personal',
   `notif_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `readed` tinyint(1) DEFAULT '0'
+  `read` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `pics` (
+CREATE TABLE  `pics` (
   `id_pic` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
   `pic_number` tinyint(1) DEFAULT NULL,
   `path` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `galleries` (
+CREATE TABLE  `galleries` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
   `type` ENUM('image', 'video') DEFAULT 'image',
   `image` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `pics_verification` (
+CREATE TABLE  `pics_verification` (
   `id_pic` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
   `path` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `profiles` (
+CREATE TABLE  `profiles` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
   `gender` ENUM('male', 'female','transgender') DEFAULT 'male' ,
@@ -163,7 +175,7 @@ CREATE TABLE IF NOT EXISTS `profiles` (
   `country_code` varchar(10) DEFAULT NULL
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `admins` (
+CREATE TABLE  `admins` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `type`  ENUM('super_admin', 'admin', 'moderator', 'accountant') NOT NULL DEFAULT "admin",
@@ -176,7 +188,7 @@ CREATE TABLE IF NOT EXISTS `admins` (
 -- Table structure for table `ticket_type`
 --
 
-CREATE TABLE `ticket_type` (
+CREATE TABLE  `ticket_type` (
   `id` char(36) NOT NULL,
   `name` varchar(255) NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -189,7 +201,7 @@ CREATE TABLE `ticket_type` (
 -- Table structure for table `reply`
 --
 
-CREATE TABLE IF NOT EXISTS `supports` (
+CREATE TABLE  `replies` (
   `id` char(36) NOT NULL,
   `user_id` char(36) NOT NULL,
   `support_id` char(36) NOT NULL,
@@ -204,7 +216,7 @@ CREATE TABLE IF NOT EXISTS `supports` (
 -- Table structure for table `supports`
 --
 
-CREATE TABLE IF NOT EXISTS `supports` (
+CREATE TABLE  `supports` (
   `id` char(36) NOT NULL,
   `user_id` char(36) NOT NULL,
   `ticket_type_id` char(36) NOT NULL,
@@ -216,10 +228,9 @@ CREATE TABLE IF NOT EXISTS `supports` (
 -- --------------------------------------------------------
 
 
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE  `users` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
+  `phone` varchar(255) NOT NULL,
   `fullname` varchar(255) NOT NULL,
   `zodiac_sign` varchar(255) DEFAULT NULL,
   `profile_completed` tinyint(1) NOT NULL DEFAULT '0',
@@ -231,12 +242,13 @@ CREATE TABLE IF NOT EXISTS `users` (
   `last_login` datetime DEFAULT NULL,
   `is_verified` tinyint(1) NOT NULL DEFAULT '0',
   `creation_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `refreshTokenId` varchar(255) DEFAULT NULL,
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `active_link` (`active_link`),
   UNIQUE KEY `ini_pwd_link` (`ini_pwd_link`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `personality_test_questions` (
+CREATE TABLE  `personality_test_questions` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `question` VARCHAR(255) NOT NULL,
   `type` VARCHAR(25) NOT NULL,
@@ -247,7 +259,7 @@ CREATE TABLE IF NOT EXISTS `personality_test_questions` (
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `user_personality_test` (
+CREATE TABLE  `user_personality_test` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `content`  json,
@@ -256,13 +268,13 @@ CREATE TABLE IF NOT EXISTS `user_personality_test` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE IF NOT EXISTS `users_interests` (
+CREATE TABLE  `users_interests` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
   `id_interest` CHAR(36) NOT NULL
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `random_calls` (
+CREATE TABLE  `random_calls` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `called_id` CHAR(36) NOT NULL,
@@ -270,7 +282,7 @@ CREATE TABLE IF NOT EXISTS `random_calls` (
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `invite_datings` (
+CREATE TABLE  `invite_datings` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `invited_id` CHAR(36) NOT NULL,
@@ -279,28 +291,28 @@ CREATE TABLE IF NOT EXISTS `invite_datings` (
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `random_call_quotas` (
+CREATE TABLE  `random_call_quotas` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `quota_left` INT(11) NOT NULL DEFAULT 0,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `invite_datings_quotas` (
+CREATE TABLE  `invite_datings_quotas` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `quota_left` INT(11) NOT NULL DEFAULT 0,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `booster` (
+CREATE TABLE  `booster` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `type` ENUM('boost', 'super_boost') NOT NULL DEFAULT 'boost',
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `user_settings` (
+CREATE TABLE  `user_settings` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `receive_push` ENUM('Yes', 'No') NOT NULL DEFAULT 'Yes',
@@ -313,7 +325,7 @@ CREATE TABLE IF NOT EXISTS `user_settings` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE IF NOT EXISTS `user_filters` (
+CREATE TABLE  `user_filters` (
   `id` CHAR(36) NOT NULL PRIMARY KEY,
   `user_id` CHAR(36) NOT NULL,
   `gender` ENUM('male', 'female', 'both') NOT NULL DEFAULT "male",
@@ -325,7 +337,7 @@ CREATE TABLE IF NOT EXISTS `user_filters` (
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `versus_wins` (
+CREATE TABLE  `versus_wins` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `win_id` CHAR(36) NOT NULL,
   `chooser_id` CHAR(36) NOT NULL,
@@ -333,14 +345,14 @@ CREATE TABLE IF NOT EXISTS `versus_wins` (
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `pro_users` (
+CREATE TABLE  `pro_users` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` VARCHAR(36) NOT NULL DEFAULT "1.0.0",
   `duration`  ENUM('month','semester', 'year') NOT NULL ,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/* CREATE TABLE IF NOT EXISTS `versus_losts` (
+/* CREATE TABLE  `versus_losts` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
   `chooser_id` CHAR(36) NOT NULL,
@@ -348,7 +360,7 @@ CREATE TABLE IF NOT EXISTS `pro_users` (
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; */
 
-CREATE TABLE IF NOT EXISTS `admin_settings` (
+CREATE TABLE  `admin_settings` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `app_version` VARCHAR(36) NOT NULL DEFAULT "1.0.0",
   `maintenance_active`  tinyint(1) NOT NULL DEFAULT "0",
@@ -674,11 +686,9 @@ ALTER TABLE `user_filters`
 
 -- versus_wins
 ALTER TABLE `versus_wins`
-  ADD CONSTRAINT `versus_wins_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;   
+  ADD CONSTRAINT `versus_wins_ibfk_1` FOREIGN KEY (`chooser_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;   
 
--- versus_losts
-ALTER TABLE `versus_losts`
-  ADD CONSTRAINT `versus_losts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;  
+
 
 
 

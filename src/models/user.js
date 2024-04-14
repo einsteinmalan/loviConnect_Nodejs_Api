@@ -13,23 +13,42 @@ export async function getUserInfoById(userid) {
   try {
     const result = await connection.query(
       `
-        SELECT users.id_user,firstname,lastname,email,online,avatar,location_lat,location_lon, city
-        FROM users 
-        LEFT JOIN profiles ON profiles.id_user = users.id
+        SELECT u.id,u.fullname,u.email,u.online, u.profile_completed, u.active, u.is_blocked, u.is_verified,u.creation_date, p.id_user,p.gender,p.sexuality, p.birthday,p.biography, p.my_contribution, p.my_expectation,p.location_lat, p.location_lon, p.zodiac_sign, p.job, p.relationship_status, p.looking_for, p.religion, p.avatar, p.fame, p.country_name, p.country_code
+        FROM users  u
+        LEFT JOIN profiles p ON profiles.id_user = users.id
         WHERE users.id = ?
         `,
       userid,
     );
     if (result[0]) {
       const user = {
-        id: result[0].id_user,
+        id: result[0].id,
         email: result[0].email,
-        firstname: result[0].firstname,
-        lastname: result[0].lastname,
+        fullname: result[0].fullname,
         lon: result[0].location_lon,
         lat: result[0].location_lat,
         avatar: result[0].avatar,
         online: result[0].online,
+        profile_completed: result[0].profile_completed,
+        active: result[0].active,
+        is_blocked: result[0].is_blocked,
+        is_verified: result[0].is_verified,
+        creation_date: result[0].creation_date,
+        gender: result[0].gender,
+        sexuality: result[0].sexuality,
+        birthday: result[0].birthday,
+        biography: result[0].biography,
+        my_contribution: result[0].my_contribution,
+        my_expectation: result[0].my_expectation,
+        zodiac_sign: result[0].zodiac_sign,
+        job: result[0].job,
+        relationship_status: result[0].relationship_status,
+        looking_for: result[0].looking_for,
+        religion: result[0].religion,
+        avatar: result[0].avatar,
+        fame: result[0].fame,
+        country_name: result[0].country_name,
+        country_code: result[0].country_code,
       };
       return user;
     } else {
@@ -43,7 +62,19 @@ export async function getUserInfoById(userid) {
 export async function verifyExistEmail(email) {
   try {
     const result = await connection.query(
-      "SELECT email, id_user FROM users WHERE email = ?",
+      "SELECT email, id FROM users WHERE email = ?",
+      email.toLowerCase(),
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function verifyExistPhone(phone) {
+  try {
+    const result = await connection.query(
+      "SELECT phone, id FROM users WHERE phone = ?",
       email.toLowerCase(),
     );
     return result;
@@ -55,7 +86,7 @@ export async function verifyExistEmail(email) {
 export async function verifyExistUsername(username) {
   try {
     const result = await connection.query(
-      "SELECT username,id_user FROM users WHERE username = ?",
+      "SELECT username,id FROM users WHERE username = ?",
       username.toLowerCase(),
     );
     return result;
@@ -67,7 +98,7 @@ export async function verifyExistUsername(username) {
 export async function checkUsername(username) {
   try {
     const result = await connection.query(
-      "SELECT email,username FROM users WHERE username = ?",
+      "SELECT email,fullname FROM users WHERE username = ?",
       username.toLowerCase(),
     );
     return result;
@@ -79,7 +110,7 @@ export async function checkUsername(username) {
 export async function checkEmail(email) {
   try {
     const result = await connection.query(
-      "SELECT email,username FROM users WHERE email = ?",
+      "SELECT email,fullname FROM users WHERE email = ?",
       email.toLowerCase(),
     );
     return result;
@@ -111,6 +142,28 @@ export async function updatepwd(username, password) {
   }
 }
 
+export async function createUser(fullname, phone, registerTokenId) {
+  const id = uuid.v4();
+  const data = [id, phone, fullname, registerTokenId];
+  try {
+    const result = connection.query(
+      "INSERT INTO users (id, phone, fullname, registerTokenId) VALUES (?, ?, ?, ?) ",
+      data,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
+
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
 export async function createNewUser(body) {
   const password = body.password;
   const fullname = body.fullname.toLowerCase();
@@ -124,28 +177,29 @@ export async function createNewUser(body) {
   const hash = bcrypt.hashSync(password, 10);
   const active_link = crypto.randomBytes(10).toString("hex");
   const id = uuid.v4();
-  const data = {
-    id: id,
-    email: email,
-    fullname: fullname,
-    password: hash,
-    active_link: active_link,
-  };
-  try {
-    const result = connection.query(
-      "INSERT INTO users (id, email, fullname, password, active_link) VALUES (?, ?, ?, ?, ?) ",
-      data,
-      (error, result) => {
-        if (error) {
-          return error;
-        }
-      },
-    );
-    await emailSender.activeAccount(data.email, data.username, active_link);
-    return result;
-  } catch (err) {
-    throw new Error(err);
-  }
+  const data = [id, email, fullname, hash, active_link];
+
+  console.log("Creating user");
+  const result = connection.query(
+    "INSERT INTO users (id, email, fullname, password, active_link) VALUES (?, ?, ?, ?, ?) ",
+    data,
+    (error, result) => {
+      if (error) {
+        return { error: error };
+      } else {
+        return result;
+      }
+    },
+  );
+  await emailSender.activeAccount(data.email, data.fullname, active_link);
+
+  return result;
+
+  // try {
+
+  // } catch (err) {
+  //   throw new Error(err);
+  // }
 }
 
 export async function createNewProfile(body, zodiac) {
@@ -233,7 +287,7 @@ export async function verifyLink(active_link) {
 export async function verifyPwdLink(resetpwd_link) {
   try {
     const result = await connection.query(
-      "SELECT username FROM users where ini_pwd_link = ?",
+      "SELECT fullname FROM users where ini_pwd_link = ?",
       resetpwd_link,
     );
     if (result[0]) {
@@ -247,25 +301,32 @@ export async function verifyPwdLink(resetpwd_link) {
 export async function login(data) {
   try {
     const check = await connection.query(
-      "SELECT * FROM users WHERE username = ?",
-      data.username.toLowerCase(),
+      `SELECT users.*, admins.id AS admin_id,admins.user_id, admins.type AS admin_type
+      FROM users 
+      LEFT JOIN admins on  admins.user_id = users.id
+      WHERE users.email = ?
+      `,
+      [data.email.toLowerCase()],
     );
+    console.log("login", check[0]);
     if (!check[0])
       return { err: "User does not exit, please create an account first" };
     else if (!check[0].active)
-      return { err: "Your accunt has not been actived, check your email" };
+      return { err: "Your account has not been actived, check your email" };
     else if (!bcrypt.compareSync(data.password, check[0].password))
       return { err: "password unmatched, try again" };
     else {
       const last_login = moment().format("Y-M-D H:m:s");
       try {
         await connection.query(
-          "UPDATE users set online = 1, last_login = ? where username = ?",
-          [last_login, data.username.toLowerCase()],
+          "UPDATE users set online = 1, last_login = ? where email = ?",
+          [last_login, data.email.toLowerCase()],
         );
         const user = {
-          userid: check[0].id_user,
-          username: check[0].username,
+          userid: check[0].id,
+          fullname: check[0].fullname,
+          admin_id: check[0].admin_id,
+          admin_type: check[0].admin_type,
         };
         return user;
       } catch (err) {
@@ -322,7 +383,7 @@ export async function getProfileInfoById(userid) {
 export async function getCreateProfile(userid) {
   try {
     const result = await connection.query(
-      `SELECT id_user, username, firstname, lastname, last_login, online FROM users WHERE id_user = ?`,
+      `SELECT * FROM users WHERE id = ?`,
       userid,
     );
     return result[0];
@@ -383,9 +444,9 @@ export async function getNotif(userid) {
   try {
     const result = await connection.query(
       `
-        SELECT id_notif, id_sender, users.firstname, users.lastname, users.online, profiles.avatar, notification, notif_time, readed
+        SELECT id_notif, id_sender, users.fullname, users.online, profiles.avatar, notification, notif_time, read, type
         FROM notifications 
-        LEFT JOIN users on notifications.id_sender = users.id_user
+        LEFT JOIN users on notifications.id_sender = users.id
         LEFT JOIN profiles on notifications.id_sender = profiles.id_user
         WHERE notifications.id_user = ? 
         ORDER BY notif_time DESC`,
@@ -399,7 +460,7 @@ export async function getNotif(userid) {
 export async function setAllReaded(userid) {
   try {
     await connection.query(
-      "UPDATE notifications SET readed = 1 WHERE id_user = ?",
+      "UPDATE notifications SET read = 1 WHERE id_user = ?",
       userid,
     );
   } catch (err) {
@@ -410,7 +471,7 @@ export async function setAllReaded(userid) {
 export async function readNotif(id_notif) {
   try {
     await connection.query(
-      "UPDATE notifications SET readed = 1 WHERE id_notif = ?",
+      "UPDATE notifications SET read = 1 WHERE id_notif = ?",
       id_notif,
     );
   } catch (err) {
@@ -469,9 +530,12 @@ export async function modify_location(data) {
     let lat = data.data.location_lat;
     let lon = data.data.location_lon;
     let city = data.data.city;
+    let country_name = data.data.country_name;
+    let country_code = data.data.country_code;
+
     await connection.query(
-      "UPDATE profiles set location_lat = ?, location_lon = ?, city = ? WHERE id_user = ?",
-      [lat, lon, city, data.id_user],
+      "UPDATE profiles set location_lat = ?, location_lon = ?, city = ?,country_name = ?, country_code = ?   WHERE id_user = ?",
+      [lat, lon, city, country_name, country_code, data.id_user],
     );
   } catch (err) {
     throw new Error(err);
@@ -490,13 +554,13 @@ export async function modifyInterests(data) {
   data.interest.map(async (interest) => {
     try {
       const id_interest = await connection.query(
-        "SELECT id_interest FROM interests WHERE interest = ?",
+        "SELECT id FROM interests WHERE interest = ?",
         interest.interest,
       );
       try {
         await connection.query(
           " INSERT INTO users_interests (id_user, id_interest) VALUES (?,?)",
-          [data.id_user, id_interest[0].id_interest],
+          [data.id_user, id_interest[0].id],
         );
       } catch (err) {
         throw new Error(err);
@@ -599,11 +663,11 @@ export async function countFake(userid) {
   }
 }
 
-export async function addFake(userid, senderid) {
+export async function addFake(id_fakeuserid, senderid) {
   try {
     await connection.query(
-      "INSERT INTO fakes (id_user, id_sender) VALUES (?, ?)",
-      [userid, senderid],
+      "INSERT INTO fakes (id_fake, id_fake,id_user, id_sender) VALUES (?, ?,?)",
+      [id_fake, userid, senderid],
     );
   } catch (err) {
     throw new Error(err);
@@ -623,7 +687,7 @@ export async function unlike(userid, unlikerid) {
 
 export async function getInterestsList() {
   try {
-    const result = await connection.query("SELECT interest FROM interests;");
+    const result = await connection.query("SELECT * FROM interests;");
     return result;
   } catch (err) {
     throw new Error(err);

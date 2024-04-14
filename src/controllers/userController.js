@@ -55,14 +55,21 @@ export async function register(req, res) {
       });
     } else {
       const result = await userModel.createNewUser(req.body);
-      if (result.error) {
+      console.log("result", result);
+      if (result?.error) {
+        return res.status(400).json({
+          status: 400,
+          error: result.error,
+          data: [],
+          message: "",
+        });
       } else {
         return res.status(200).json({
           status: 200,
           error: null,
           data: [],
           message:
-            "Successfully register. A email has been sended to your email, please activate your account before login",
+            "Registration Successfully. A email has been sent to your email, please activate your account before login",
         });
       }
     }
@@ -174,23 +181,35 @@ export async function updatepwd(req, res) {
 }
 
 export async function login(req, res) {
-  const result = await userModel.login(req.body);
-  if (typeof result.err !== "undefined") {
+  const { email, password } = req.body;
+  if (!form_validator.isEmail(email)) {
     return res.status(400).json({
-      error: result.err,
+      error: "Please enter a correct email",
       status: 400,
-      message: "Bad Request!",
+      message: "Please enter a correct email address",
       data: [],
     });
   } else {
-    const token = jwtModel.generateToken(result.userid, result.username);
-    return res.status(200).json({
-      status: 200,
-      message: "Sucessfully login",
-      data: result,
-      token: token,
-      error: null,
-    });
+    const data = { email: email, password: password };
+    const result = await userModel.login(data);
+    console.log("...result");
+    if (typeof result.err !== "undefined") {
+      return res.status(400).json({
+        error: result.err,
+        status: 400,
+        message: "Bad Request!",
+        data: [],
+      });
+    } else {
+      const token = jwtModel.generateToken(result.userid, result.username);
+      return res.status(200).json({
+        status: 200,
+        message: "Sucessfully login",
+        data: result,
+        token: token,
+        error: null,
+      });
+    }
   }
 }
 

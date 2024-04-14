@@ -1,12 +1,30 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-const transporter = nodemailer.createTransport({
+
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 587,
+//   secure: false,
+//   auth: {
+//     user: "lovicharm365@gmail.com",
+//     pass: "LoviCh@rm901",
+//   },
+// });
+
+//Create a transporter object using SMTP transport
+let transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
+  port: 465,
+  ignoreTLS: true,
+  secureConnection: false,
   secure: false,
+  tls: {
+    rejectUnauthorized: false,
+    //    ciphers: "SSLv3"
+  },
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS,
+    user: "lovicharm365@gmail.com",
+    pass: "LoviCh@rm901",
   },
 });
 
@@ -21,14 +39,14 @@ export async function activeAccount(email, username, active_link) {
         <br>
         <p>Thank you for your registration on LoviConnect.</p>
         <p>Please click the link below to active your account: </p>
-        <a href="http:localhost:3000/user/active/${active_link}">Click Me</a>
+        <a href="http://localhost:3000/user/active/${active_link}">Click Me</a>
       </body>
     </html>
     `;
 
   await transporter.sendMail(
     {
-      from: "LoviConnect",
+      from: "lovicharm365@gmail.com",
       to: email,
       subject: "Welcome to LoviConnect",
       html: message,
@@ -36,8 +54,9 @@ export async function activeAccount(email, username, active_link) {
     },
     (err, info) => {
       if (err) console.log(err);
-      console.log("Message sent: %s", info.messageId);
-      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+      console.log("transEmail", err);
+      // console.log("Message sent: %s", info.messageId);
+      // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
     },
   );
 }

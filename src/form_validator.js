@@ -8,7 +8,7 @@ class Form_validator {
   }
 
   static isEmail(input) {
-    if (!(input != null)) {
+    if (!(input !== null)) {
       return false;
     } else {
       return input.match(
@@ -21,7 +21,9 @@ class Form_validator {
     if (!(input != null)) {
       return false;
     } else {
-      return input.match(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/);
+      return input.match(
+        /^(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{6,}$/,
+      );
     }
   }
 
