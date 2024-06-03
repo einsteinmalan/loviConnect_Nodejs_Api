@@ -105,6 +105,8 @@ INSERT INTO `interests` (`id`, `interest`) VALUES
 (41, 'Lack of love for pets');
 
 
+
+
 CREATE TABLE  `likes` (
   `id_likes` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
@@ -241,28 +243,47 @@ CREATE TABLE  `users` (
   `online` tinyint(1) NOT NULL DEFAULT '1',
   `last_login` datetime DEFAULT NULL,
   `is_verified` tinyint(1) NOT NULL DEFAULT '0',
+  `otp` VARCHAR(6) DEFAULT NULL,
   `creation_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `refreshTokenId` varchar(255) DEFAULT NULL,
-  UNIQUE KEY `email` (`email`),
+  /* UNIQUE KEY `email` (`email`),
   UNIQUE KEY `active_link` (`active_link`),
-  UNIQUE KEY `ini_pwd_link` (`ini_pwd_link`)
+  UNIQUE KEY `ini_pwd_link` (`ini_pwd_link`) */
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ------------------------------------------------------------
+--       User sessions
+-- -------------------------------------------------------------
+
+CREATE TABLE `sessions` (
+  `id` CHAR(36) NOT NULL PRIMARY KEY ,
+  `user_id` INT NOT NULL,
+  `refresh_token` VARCHAR(255) NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+-- -------------------------------------------------------------
+--        Personality Test Questions
+-- -------------------------------------------------------------
 
 CREATE TABLE  `personality_test_questions` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `question` VARCHAR(255) NOT NULL,
   `type` VARCHAR(25) NOT NULL,
   `data-type` VARCHAR(25) NOT NULL,
-  `choices`  json NOT NULL,
+  `choices`  text NOT NULL,
   `version`  VARCHAR(25) NOT NULL DEFAULT '1.0.0',
-  `gender` ENUM('man', 'woman') DEFAULT 'man',
+  `gender` ENUM('Male', 'Female') DEFAULT 'Male',
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE  `user_personality_test` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` CHAR(36) NOT NULL,
-  `content`  json,
+  `content`  text,
   `version`  VARCHAR(25) NOT NULL DEFAULT '1.0.0',
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

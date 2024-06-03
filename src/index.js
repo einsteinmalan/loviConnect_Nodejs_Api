@@ -4,8 +4,9 @@ var http = require("http").Server(app);
 require("dotenv").config();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const accountSid = process.env.ACCOUNT_SID;
-const authToken = process.env.AUTH_TOKEN;
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+console.log(process.env.TWILIO_ACCOUNT_SID);
 const client = require("twilio")(accountSid, authToken);
 const crypto = require("crypto");
 const smsKey = process.env.SMS_SECRET_KEY;
@@ -99,6 +100,119 @@ const generateRefreshTokenID = () => {
   return crypto.randomBytes(16).toString("hex"); // Generate a 32-character hexadecimal string (128 bits)
 };
 
+const generateAccessToken = (user) => {
+  return jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "15m" });
+};
+
+const generateRefreshToken = (user) => {
+  const refreshToken = jwt.sign(user, process.env.JWT_REFRESH_SECRET, {
+    expiresIn: "7d",
+  });
+  db.query(
+    "INSERT INTO sessions (user_id, refresh_token) VALUES (?, ?)",
+    [user.id, refreshToken],
+    (err) => {
+      if (err) throw err;
+    },
+  );
+  return refreshToken;
+};
+
+app.post("auth/token", (req, res) => {
+  const { token } = req.body;
+  if (!token) return res.status(401).json({ message: "No token provided" });
+
+  jwt.verify(token, process.env.JWT_REFRESH_SECRET, async (err, user) => {
+    if (err) return res.status(403).json({ message: "Invalid refresh token" });
+
+    const result = await userModel.getUserSessions(token);
+    if (result.length === 0) {
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
+
+    if (result.error) {
+      return res.status(403).json({ message: result.error });
+    }
+
+    const newAccessToken = generateAccessToken({
+      id: user.id,
+      phone: user.phone,
+    });
+    return res.status(201).json({ accessToken: newAccessToken });
+  });
+});
+
+app.post("/auth/register", async (req, res) => {
+  const { fullName, phone } = req.body;
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  const result = await userModel.verifyExistPhone(phone);
+
+  if (result[0]) {
+    //Account exist already
+    client.messages
+      .create({
+        body: `Your OTP for LoviConnect login is ${otp}`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: phone,
+      })
+      .then(() => {
+        res
+          .status(201)
+          .json({ message: "User registered. OTP sent to phone." });
+      })
+      .catch((err) => {
+        res
+          .status(500)
+          .json({ message: "Error sending OTP", error: err.message });
+      });
+  } else {
+    //Account doesn't exist yet
+    const registerTokenId = generateRefreshTokenID();
+    const resultat = await userModel.createUser(
+      fullName,
+      phone,
+      registerTokenId,
+    );
+    if (resultat[0]) {
+      client.messages
+        .create({
+          body: `Your OTP for LoviConnect login is ${otp}`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: phone,
+        })
+        .then(() => {
+          res
+            .status(201)
+            .json({ message: "User registered. OTP sent to phone." });
+        })
+        .catch((err) => {
+          res
+            .status(500)
+            .json({ message: "Error sending OTP", error: err.message });
+        });
+    }
+  }
+});
+
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "No token provided" });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: "Invalid token" });
+    req.user = user;
+    next();
+  });
+};
+
+// app.get("/protected", authenticateToken, (req, res) => {
+//   res.json({ message: "Protected route accessed", user: req.user });
+// });
+
+//-----------------Another one ---------------------------------
+
 app.post("/auth/sendOTP", (req, res) => {
   const phone = req.body.phone;
   const otp = Math.floor(100000 + Math.random() * 900000);
@@ -110,11 +224,13 @@ app.post("/auth/sendOTP", (req, res) => {
 
   client.messages
     .create({
-      body: `Your One Time Login Password For LoviConnect is ${otp}`,
+      body: `Your one time login Password For LoviConnect is ${otp}`,
       //from: twilioNum,
       to: phone,
     })
-    .then((messages) => console.log(messages))
+    .then((messages) => {
+      //console.log(messages);
+    })
     .catch((err) => console.error(err));
 
   // res.status(200).send({ phone, hash: fullHash, otp });  // this bypass otp via api only for development instead hitting twilio api all the time
@@ -145,9 +261,8 @@ app.post("/auth/verifyOTP", async (req, res) => {
     .update(data)
     .digest("hex");
   if (newCalculatedHash === hashValue) {
-    console.log("user confirmed");
     const accessToken = jwt.sign({ data: phone }, JWT_AUTH_TOKEN, {
-      expiresIn: "30s",
+      expiresIn: "15m",
     });
     const refreshToken = jwt.sign({ data: phone }, JWT_REFRESH_TOKEN, {
       expiresIn: "1y",
@@ -173,8 +288,6 @@ app.post("/auth/verifyOTP", async (req, res) => {
           expires: new Date(new Date().getTime() + 30 * 1000),
           sameSite: "strict",
         })
-        //generateRefreshTokenID
-        //.cookie("refreshTokenID", true, {
         .cookie("refreshTokenID", registerTokenId, {
           expires: new Date(new Date().getTime() + 31557600000),
           sameSite: "strict",
@@ -182,6 +295,7 @@ app.post("/auth/verifyOTP", async (req, res) => {
         .send({
           message: "Device verified",
           statusCode: 202,
+          accountExist: true,
           data: [],
           error: null,
         });
@@ -220,6 +334,7 @@ app.post("/auth/verifyOTP", async (req, res) => {
               message: "Device verified",
               statusCode: 202,
               data: [],
+              accountExist: false,
               error: null,
             });
         } else {
@@ -240,13 +355,11 @@ app.post("/auth/verifyOTP", async (req, res) => {
       }
     }
   } else {
-    console.log("not authenticated");
     return res.status(400).send({ verification: false, msg: "Incorrect OTP" });
   }
 });
 
 app.post("/home", authenticateUser, (req, res) => {
-  console.log("home private route");
   res.status(202).send("Private Protected Route - Home");
 });
 
@@ -261,10 +374,13 @@ async function authenticateUser(req, res, next) {
       return res.status(403).send({
         success: false,
         msg: "Access token expired",
+        status: 403,
+        err: "Access token expired",
       });
     } else {
-      console.log(err);
-      return res.status(403).send({ err, msg: "User not authenticated" });
+      return res
+        .status(403)
+        .send({ err, msg: "User not authenticated", status: 403 });
     }
   });
 }
@@ -283,7 +399,7 @@ app.post("/auth/refresh", (req, res) => {
   jwt.verify(refreshToken, JWT_REFRESH_TOKEN, (err, phone) => {
     if (!err) {
       const accessToken = jwt.sign({ data: phone }, JWT_AUTH_TOKEN, {
-        expiresIn: "30s",
+        expiresIn: "15m",
       });
       return res
         .status(200)
@@ -332,7 +448,6 @@ const server = http.listen(PORT, () => {
 //socket
 const io = require("socket.io").listen(server);
 io.on("connection", (socket) => {
-  // console.log(`Socket ${socket.id} connected.`);
   socket.on("joinRoom", async ({ token, id_chatroom }, callback) => {
     const { userid, error } = await authSocket.authSocket(token);
     if (error) return callback(error);

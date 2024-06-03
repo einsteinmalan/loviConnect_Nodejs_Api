@@ -74,8 +74,88 @@ export async function verifyExistEmail(email) {
 export async function verifyExistPhone(phone) {
   try {
     const result = await connection.query(
-      "SELECT phone, id FROM users WHERE phone = ?",
+      "SELECT phone, id FROM users WHERE phone = ? ",
       email.toLowerCase(),
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function verifyOtp(phone, otp) {
+  try {
+    const result = await connection.query(
+      "SELECT * FROM users WHERE phone = ? AND otp = ?",
+      [phone, otp],
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function getUserSessions(refresh_token) {
+  try {
+    const result = await connection.query(
+      "SELECT * FROM sessions WHERE refresh_token = ?",
+      [refresh_token],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
+    // return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function createUserSession(user_id, refresh_token) {
+  const id = uuid.v4();
+  try {
+    const result = await connection.query(
+      "INSERT INTO sessions (id,user_id, refresh_token) VALUES (?,?,?)",
+      [id, user_id, refresh_token],
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function updateVerifyStatus(phone) {
+  try {
+    const result = await connection.query(
+      "UPDATE users SET is_verified = 1 WHERE phone = ?",
+      [phone],
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function updateOtp(phone, otp) {
+  try {
+    const result = await connection.query(
+      "UPDATE users SET otp = ? WHERE phone = ?",
+      [otp, phone],
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function authLogin(phone) {
+  try {
+    const result = await connection.query(
+      "SELECT * FROM users WHERE phone = ? AND is_verified = 1",
+      [phone],
     );
     return result;
   } catch (err) {
@@ -142,12 +222,12 @@ export async function updatepwd(username, password) {
   }
 }
 
-export async function createUser(fullname, phone, registerTokenId) {
+export async function createUser(fullname, phone) {
   const id = uuid.v4();
-  const data = [id, phone, fullname, registerTokenId];
+  const data = [id, phone, fullname];
   try {
     const result = connection.query(
-      "INSERT INTO users (id, phone, fullname, registerTokenId) VALUES (?, ?, ?, ?) ",
+      "INSERT INTO users (id, phone, fullname) VALUES (?, ?, ?) ",
       data,
       (error, result) => {
         if (error) {
