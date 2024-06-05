@@ -104,17 +104,13 @@ const generateAccessToken = (user) => {
   return jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "15m" });
 };
 
-const generateRefreshToken = (user) => {
+const generateRefreshToken = async (user) => {
   const refreshToken = jwt.sign(user, process.env.JWT_REFRESH_SECRET, {
     expiresIn: "7d",
   });
-  db.query(
-    "INSERT INTO sessions (user_id, refresh_token) VALUES (?, ?)",
-    [user.id, refreshToken],
-    (err) => {
-      if (err) throw err;
-    },
-  );
+
+  const result = await userModel.createUserSession(user.id, refreshToken);
+
   return refreshToken;
 };
 
@@ -168,17 +164,12 @@ app.post("/auth/register", async (req, res) => {
       });
   } else {
     //Account doesn't exist yet
-    const registerTokenId = generateRefreshTokenID();
-    const resultat = await userModel.createUser(
-      fullName,
-      phone,
-      registerTokenId,
-    );
+    const resultat = await userModel.createUser(fullName);
     if (resultat[0]) {
       client.messages
         .create({
           body: `Your OTP for LoviConnect login is ${otp}`,
-          from: process.env.TWILIO_PHONE_NUMBER,
+          //from: process.env.TWILIO_PHONE_NUMBER,
           to: phone,
         })
         .then(() => {
@@ -213,223 +204,223 @@ const authenticateToken = (req, res, next) => {
 
 //-----------------Another one ---------------------------------
 
-app.post("/auth/sendOTP", (req, res) => {
-  const phone = req.body.phone;
-  const otp = Math.floor(100000 + Math.random() * 900000);
-  const ttl = 2 * 60 * 1000;
-  const expires = Date.now() + ttl;
-  const data = `${phone}.${otp}.${expires}`;
-  const hash = crypto.createHmac("sha256", smsKey).update(data).digest("hex");
-  const fullHash = `${hash}.${expires}`;
+// app.post("/auth/sendOTP", (req, res) => {
+//   const phone = req.body.phone;
+//   const otp = Math.floor(100000 + Math.random() * 900000);
+//   const ttl = 2 * 60 * 1000;
+//   const expires = Date.now() + ttl;
+//   const data = `${phone}.${otp}.${expires}`;
+//   const hash = crypto.createHmac("sha256", smsKey).update(data).digest("hex");
+//   const fullHash = `${hash}.${expires}`;
 
-  client.messages
-    .create({
-      body: `Your one time login Password For LoviConnect is ${otp}`,
-      //from: twilioNum,
-      to: phone,
-    })
-    .then((messages) => {
-      //console.log(messages);
-    })
-    .catch((err) => console.error(err));
+//   client.messages
+//     .create({
+//       body: `Your one time login Password For LoviConnect is ${otp}`,
+//       //from: twilioNum,
+//       to: phone,
+//     })
+//     .then((messages) => {
+//       //console.log(messages);
+//     })
+//     .catch((err) => console.error(err));
 
-  // res.status(200).send({ phone, hash: fullHash, otp });  // this bypass otp via api only for development instead hitting twilio api all the time
-  res
-    .status(200)
-    .send({ phone, hash: fullHash, statusCode: 200, message: "OTP sent!" }); // Use this way in Production
-});
+//   // res.status(200).send({ phone, hash: fullHash, otp });  // this bypass otp via api only for development instead hitting twilio api all the time
+//   res
+//     .status(200)
+//     .send({ phone, hash: fullHash, statusCode: 200, message: "OTP sent!" }); // Use this way in Production
+// });
 
-app.post("/auth/verifyOTP", async (req, res) => {
-  const phone = req.body.phone;
-  const fullname = req.body.fullName;
-  const hash = req.body.hash;
-  const otp = req.body.otp;
-  let [hashValue, expires] = hash.split(".");
-  const registerTokenId = generateRefreshTokenID();
+// app.post("/auth/verifyOTP", async (req, res) => {
+//   const phone = req.body.phone;
+//   const fullname = req.body.fullName;
+//   const hash = req.body.hash;
+//   const otp = req.body.otp;
+//   let [hashValue, expires] = hash.split(".");
+//   const registerTokenId = generateRefreshTokenID();
 
-  let now = Date.now();
-  if (now > parseInt(expires)) {
-    return res.status(504).send({
-      message: "Timeout. Please try again",
-      statusCode: 504,
-      data: [],
-    });
-  }
-  let data = `${phone}.${otp}.${expires}`;
-  let newCalculatedHash = crypto
-    .createHmac("sha256", smsKey)
-    .update(data)
-    .digest("hex");
-  if (newCalculatedHash === hashValue) {
-    const accessToken = jwt.sign({ data: phone }, JWT_AUTH_TOKEN, {
-      expiresIn: "15m",
-    });
-    const refreshToken = jwt.sign({ data: phone }, JWT_REFRESH_TOKEN, {
-      expiresIn: "1y",
-    });
-    refreshTokens.push(refreshToken);
+//   let now = Date.now();
+//   if (now > parseInt(expires)) {
+//     return res.status(504).send({
+//       message: "Timeout. Please try again",
+//       statusCode: 504,
+//       data: [],
+//     });
+//   }
+//   let data = `${phone}.${otp}.${expires}`;
+//   let newCalculatedHash = crypto
+//     .createHmac("sha256", smsKey)
+//     .update(data)
+//     .digest("hex");
+//   if (newCalculatedHash === hashValue) {
+//     const accessToken = jwt.sign({ data: phone }, JWT_AUTH_TOKEN, {
+//       expiresIn: "15m",
+//     });
+//     const refreshToken = jwt.sign({ data: phone }, JWT_REFRESH_TOKEN, {
+//       expiresIn: "1y",
+//     });
+//     refreshTokens.push(refreshToken);
 
-    const result = await userModel.verifyExistPhone(phone);
-    if (result[0]) {
-      //User account already exist
-      res
-        .status(202)
-        .cookie("accessToken", accessToken, {
-          expires: new Date(new Date().getTime() + 30 * 1000),
-          sameSite: "strict",
-          httpOnly: true,
-        })
-        .cookie("refreshToken", refreshToken, {
-          expires: new Date(new Date().getTime() + 31557600000),
-          sameSite: "strict",
-          httpOnly: true,
-        })
-        .cookie("authSession", true, {
-          expires: new Date(new Date().getTime() + 30 * 1000),
-          sameSite: "strict",
-        })
-        .cookie("refreshTokenID", registerTokenId, {
-          expires: new Date(new Date().getTime() + 31557600000),
-          sameSite: "strict",
-        })
-        .send({
-          message: "Device verified",
-          statusCode: 202,
-          accountExist: true,
-          data: [],
-          error: null,
-        });
-    } else {
-      //User account doesn't exist yet
-      if (fullname) {
-        const resultat = await userModel.createUser(
-          fullname,
-          phone,
-          registerTokenId,
-        );
-        if (!resultat.error) {
-          res
-            .status(202)
-            .cookie("accessToken", accessToken, {
-              expires: new Date(new Date().getTime() + 30 * 1000),
-              sameSite: "strict",
-              httpOnly: true,
-            })
-            .cookie("refreshToken", refreshToken, {
-              expires: new Date(new Date().getTime() + 31557600000),
-              sameSite: "strict",
-              httpOnly: true,
-            })
-            .cookie("authSession", true, {
-              expires: new Date(new Date().getTime() + 30 * 1000),
-              sameSite: "strict",
-            })
-            //generateRefreshTokenID
-            //.cookie("refreshTokenID", true, {
-            .cookie("refreshTokenID", registerTokenId, {
-              expires: new Date(new Date().getTime() + 31557600000),
-              sameSite: "strict",
-            })
-            .send({
-              message: "Device verified",
-              statusCode: 202,
-              data: [],
-              accountExist: false,
-              error: null,
-            });
-        } else {
-          res.status(400).send({
-            message: resultat.error,
-            statusCode: 400,
-            data: [],
-            error: resultat.error,
-          });
-        }
-      } else {
-        res.status(400).send({
-          message: "Bad request",
-          statusCode: 400,
-          data: [],
-          error: "Bad request",
-        });
-      }
-    }
-  } else {
-    return res.status(400).send({ verification: false, msg: "Incorrect OTP" });
-  }
-});
+//     const result = await userModel.verifyExistPhone(phone);
+//     if (result[0]) {
+//       //User account already exist
+//       res
+//         .status(202)
+//         .cookie("accessToken", accessToken, {
+//           expires: new Date(new Date().getTime() + 30 * 1000),
+//           sameSite: "strict",
+//           httpOnly: true,
+//         })
+//         .cookie("refreshToken", refreshToken, {
+//           expires: new Date(new Date().getTime() + 31557600000),
+//           sameSite: "strict",
+//           httpOnly: true,
+//         })
+//         .cookie("authSession", true, {
+//           expires: new Date(new Date().getTime() + 30 * 1000),
+//           sameSite: "strict",
+//         })
+//         .cookie("refreshTokenID", registerTokenId, {
+//           expires: new Date(new Date().getTime() + 31557600000),
+//           sameSite: "strict",
+//         })
+//         .send({
+//           message: "Device verified",
+//           statusCode: 202,
+//           accountExist: true,
+//           data: [],
+//           error: null,
+//         });
+//     } else {
+//       //User account doesn't exist yet
+//       if (fullname) {
+//         const resultat = await userModel.createUser(
+//           fullname,
+//           phone,
+//           registerTokenId,
+//         );
+//         if (!resultat.error) {
+//           res
+//             .status(202)
+//             .cookie("accessToken", accessToken, {
+//               expires: new Date(new Date().getTime() + 30 * 1000),
+//               sameSite: "strict",
+//               httpOnly: true,
+//             })
+//             .cookie("refreshToken", refreshToken, {
+//               expires: new Date(new Date().getTime() + 31557600000),
+//               sameSite: "strict",
+//               httpOnly: true,
+//             })
+//             .cookie("authSession", true, {
+//               expires: new Date(new Date().getTime() + 30 * 1000),
+//               sameSite: "strict",
+//             })
+//             //generateRefreshTokenID
+//             //.cookie("refreshTokenID", true, {
+//             .cookie("refreshTokenID", registerTokenId, {
+//               expires: new Date(new Date().getTime() + 31557600000),
+//               sameSite: "strict",
+//             })
+//             .send({
+//               message: "Device verified",
+//               statusCode: 202,
+//               data: [],
+//               accountExist: false,
+//               error: null,
+//             });
+//         } else {
+//           res.status(400).send({
+//             message: resultat.error,
+//             statusCode: 400,
+//             data: [],
+//             error: resultat.error,
+//           });
+//         }
+//       } else {
+//         res.status(400).send({
+//           message: "Bad request",
+//           statusCode: 400,
+//           data: [],
+//           error: "Bad request",
+//         });
+//       }
+//     }
+//   } else {
+//     return res.status(400).send({ verification: false, msg: "Incorrect OTP" });
+//   }
+// });
 
-app.post("/home", authenticateUser, (req, res) => {
-  res.status(202).send("Private Protected Route - Home");
-});
+// app.post("/home", authenticateUser, (req, res) => {
+//   res.status(202).send("Private Protected Route - Home");
+// });
 
-async function authenticateUser(req, res, next) {
-  const accessToken = req.cookies.accessToken;
+// async function authenticateUser(req, res, next) {
+//   const accessToken = req.cookies.accessToken;
 
-  jwt.verify(accessToken, JWT_AUTH_TOKEN, async (err, phone) => {
-    if (phone) {
-      req.phone = phone;
-      next();
-    } else if (err.message === "TokenExpiredError") {
-      return res.status(403).send({
-        success: false,
-        msg: "Access token expired",
-        status: 403,
-        err: "Access token expired",
-      });
-    } else {
-      return res
-        .status(403)
-        .send({ err, msg: "User not authenticated", status: 403 });
-    }
-  });
-}
+//   jwt.verify(accessToken, JWT_AUTH_TOKEN, async (err, phone) => {
+//     if (phone) {
+//       req.phone = phone;
+//       next();
+//     } else if (err.message === "TokenExpiredError") {
+//       return res.status(403).send({
+//         success: false,
+//         msg: "Access token expired",
+//         status: 403,
+//         err: "Access token expired",
+//       });
+//     } else {
+//       return res
+//         .status(403)
+//         .send({ err, msg: "User not authenticated", status: 403 });
+//     }
+//   });
+// }
 
-app.post("/auth/refresh", (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken)
-    return res
-      .status(403)
-      .send({ message: "Refresh token not found, login again" });
-  if (!refreshTokens.includes(refreshToken))
-    return res
-      .status(403)
-      .send({ message: "Refresh token blocked, login again" });
+// app.post("/auth/refresh", (req, res) => {
+//   const refreshToken = req.cookies.refreshToken;
+//   if (!refreshToken)
+//     return res
+//       .status(403)
+//       .send({ message: "Refresh token not found, login again" });
+//   if (!refreshTokens.includes(refreshToken))
+//     return res
+//       .status(403)
+//       .send({ message: "Refresh token blocked, login again" });
 
-  jwt.verify(refreshToken, JWT_REFRESH_TOKEN, (err, phone) => {
-    if (!err) {
-      const accessToken = jwt.sign({ data: phone }, JWT_AUTH_TOKEN, {
-        expiresIn: "15m",
-      });
-      return res
-        .status(200)
-        .cookie("accessToken", accessToken, {
-          expires: new Date(new Date().getTime() + 30 * 1000),
-          sameSite: "strict",
-          httpOnly: true,
-        })
-        .cookie("authSession", true, {
-          expires: new Date(new Date().getTime() + 30 * 1000),
-          sameSite: "strict",
-        })
-        .send({ previousSessionExpired: true, success: true });
-    } else {
-      return res.status(403).send({
-        success: false,
-        msg: "Invalid refresh token",
-      });
-    }
-  });
-});
+//   jwt.verify(refreshToken, JWT_REFRESH_TOKEN, (err, phone) => {
+//     if (!err) {
+//       const accessToken = jwt.sign({ data: phone }, JWT_AUTH_TOKEN, {
+//         expiresIn: "15m",
+//       });
+//       return res
+//         .status(200)
+//         .cookie("accessToken", accessToken, {
+//           expires: new Date(new Date().getTime() + 30 * 1000),
+//           sameSite: "strict",
+//           httpOnly: true,
+//         })
+//         .cookie("authSession", true, {
+//           expires: new Date(new Date().getTime() + 30 * 1000),
+//           sameSite: "strict",
+//         })
+//         .send({ previousSessionExpired: true, success: true });
+//     } else {
+//       return res.status(403).send({
+//         success: false,
+//         msg: "Invalid refresh token",
+//       });
+//     }
+//   });
+// });
 
-app.get("/auth/logout", (req, res) => {
-  res
-    .clearCookie("refreshToken")
-    .clearCookie("accessToken")
-    .clearCookie("authSession")
-    .clearCookie("refreshTokenID")
-    .send("logout");
-});
+// app.get("/auth/logout", (req, res) => {
+//   res
+//     .clearCookie("refreshToken")
+//     .clearCookie("accessToken")
+//     .clearCookie("authSession")
+//     .clearCookie("refreshTokenID")
+//     .send("logout");
+// });
 
 //=======================   END   ==============================
 
