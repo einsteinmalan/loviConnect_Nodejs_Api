@@ -76,8 +76,15 @@ export async function verifyExistPhone(phone) {
     const result = await connection.query(
       "SELECT phone, id FROM users WHERE phone = ? ",
       email.toLowerCase(),
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //   return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -85,11 +92,18 @@ export async function verifyExistPhone(phone) {
 
 export async function verifyOtp(phone, otp) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT * FROM users WHERE phone = ? AND otp = ?",
       [phone, otp],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -117,11 +131,18 @@ export async function getUserSessions(refresh_token) {
 export async function createUserSession(user_id, refresh_token) {
   const id = uuid.v4();
   try {
-    const result = await connection.query(
+    await connection.query(
       "INSERT INTO sessions (id,user_id, refresh_token) VALUES (?,?,?)",
       [id, user_id, refresh_token],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -129,11 +150,18 @@ export async function createUserSession(user_id, refresh_token) {
 
 export async function updateVerifyStatus(phone) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "UPDATE users SET is_verified = 1 WHERE phone = ?",
       [phone],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -141,11 +169,18 @@ export async function updateVerifyStatus(phone) {
 
 export async function updateOtp(phone, otp) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "UPDATE users SET otp = ? WHERE phone = ?",
       [otp, phone],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -153,11 +188,18 @@ export async function updateOtp(phone, otp) {
 
 export async function authLogin(phone) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT * FROM users WHERE phone = ? AND is_verified = 1",
       [phone],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -165,11 +207,18 @@ export async function authLogin(phone) {
 
 export async function verifyExistUsername(username) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT username,id FROM users WHERE username = ?",
       username.toLowerCase(),
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -177,11 +226,18 @@ export async function verifyExistUsername(username) {
 
 export async function checkUsername(username) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT email,fullname FROM users WHERE username = ?",
       username.toLowerCase(),
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -189,11 +245,18 @@ export async function checkUsername(username) {
 
 export async function checkEmail(email) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT email,fullname FROM users WHERE email = ?",
       email.toLowerCase(),
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -204,6 +267,13 @@ export async function updateResetpwdLink(username, resetpwd_link) {
     await connection.query(
       "UPDATE users set ini_pwd_link = ? where username = ?",
       [resetpwd_link, username],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -216,6 +286,13 @@ export async function updatepwd(username, password) {
     await connection.query("UPDATE users set password = ? where username = ?", [
       hash,
       username.toLowerCase(),
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     ]);
   } catch (err) {
     throw new Error(err);
@@ -226,19 +303,19 @@ export async function createUser(fullname, phone) {
   const id = uuid.v4();
   const data = [id, phone, fullname];
   try {
-    const result = connection.query(
+    await connection.query(
       "INSERT INTO users (id, phone, fullname) VALUES (?, ?, ?) ",
       data,
       (error, result) => {
         if (error) {
           return { error: error };
         } else {
-          return result;
+          return id;
         }
       },
     );
 
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -260,7 +337,7 @@ export async function createNewUser(body) {
   const data = [id, email, fullname, hash, active_link];
 
   console.log("Creating user");
-  const result = connection.query(
+  await connection.query(
     "INSERT INTO users (id, email, fullname, password, active_link) VALUES (?, ?, ?, ?, ?) ",
     data,
     (error, result) => {
@@ -342,11 +419,18 @@ export async function createNewProfile(body, zodiac) {
       country_code: country_code,
       zodiac_sign: zodiac,
     };
-    const final_result = await connection.query(
+    await connection.query(
       "INSERT INTO profiles SET ?",
       dataProfile,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return { error: null, data: [] };
+    //return { error: null, data: [] };
   } catch (err) {
     throw new Error(err);
   }
@@ -354,11 +438,18 @@ export async function createNewProfile(body, zodiac) {
 
 export async function verifyLink(active_link) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "UPDATE users set active = 1, active_link = NULL where active_link = ?",
       active_link,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result.affectedRows;
+    //return result.affectedRows;
   } catch (err) {
     throw new Error(err);
   }
@@ -366,13 +457,20 @@ export async function verifyLink(active_link) {
 
 export async function verifyPwdLink(resetpwd_link) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT fullname FROM users where ini_pwd_link = ?",
       resetpwd_link,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0].username;
+        }
+      },
     );
-    if (result[0]) {
-      return result[0].username;
-    }
+    // if (result[0]) {
+    //   return result[0].username;
+    // }
   } catch (err) {
     throw new Error(err);
   }
@@ -423,6 +521,13 @@ export async function logout(userid) {
     await connection.query(
       "UPDATE users set online = 0 where id_user = ?",
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -431,11 +536,18 @@ export async function logout(userid) {
 
 export async function getUserSettings(userid) {
   try {
-    result = await connection.query(
+    await connection.query(
       "SELECT * FROM user_filters WHERE user_id = ?",
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -443,18 +555,25 @@ export async function getUserSettings(userid) {
 
 export async function getProfileInfoById(userid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       `SELECT profiles.id_user, profiles.id, profiles.gender, profiles.birthday, profiles.biography, profiles.location_lat, profiles.location_lon, u.avatar, profiles.fame, profiles.city, u.fullname, u.online, profiles.country, profiles.country_code, profiles.city, profiles.zodiac_sign, u.active, u.is_blocked, u.creation_date
             FROM profiles 
             LEFT JOIN users AS u on profiles.id_user = users.id 
             WHERE profiles.id_user = ?`,
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    if (!result[0]) {
-      return { err: "User does not exist" };
-    } else {
-      return result[0];
-    }
+    // if (!result[0]) {
+    //   return { err: "User does not exist" };
+    // } else {
+    //   return result[0];
+    // }
   } catch (err) {
     throw new Error(err);
   }
@@ -462,11 +581,18 @@ export async function getProfileInfoById(userid) {
 
 export async function getCreateProfile(userid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       `SELECT * FROM users WHERE id = ?`,
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result[0];
+    // return result[0];
   } catch (err) {
     throw new Error(err);
   }
@@ -474,14 +600,21 @@ export async function getCreateProfile(userid) {
 
 export async function getInterestsById(userid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       `
             SELECT interest FROM interests 
             LEFT JOIN users_interests on interests.id = users_interests.id_interest
             WHERE users_interests.id_user = ?`,
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -489,13 +622,20 @@ export async function getInterestsById(userid) {
 
 export async function getPictureById(userid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       `
             SELECT path FROM pics 
             WHERE id_user = ?`,
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    // return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -506,6 +646,13 @@ export async function addFame(fame, userid) {
     await connection.query(
       "SET @i = ?; UPDATE profiles SET fame = fame + @i WHERE id_user = ?",
       [fame, userid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -514,7 +661,17 @@ export async function addFame(fame, userid) {
 
 export async function addNotif(data) {
   try {
-    await connection.query("INSERT INTO notifications SET ?", data);
+    await connection.query(
+      "INSERT INTO notifications SET ?",
+      data,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (err) {
     throw new Error(err);
   }
@@ -522,7 +679,7 @@ export async function addNotif(data) {
 
 export async function getNotif(userid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       `
         SELECT id_notif, id_sender, users.fullname, users.online, profiles.avatar, notification, notif_time, read, type
         FROM notifications 
@@ -531,8 +688,15 @@ export async function getNotif(userid) {
         WHERE notifications.id_user = ? 
         ORDER BY notif_time DESC`,
       [userid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -542,6 +706,13 @@ export async function setAllReaded(userid) {
     await connection.query(
       "UPDATE notifications SET read = 1 WHERE id_user = ?",
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -553,6 +724,13 @@ export async function readNotif(id_notif) {
     await connection.query(
       "UPDATE notifications SET read = 1 WHERE id_notif = ?",
       id_notif,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -569,10 +747,17 @@ export async function modifyAccount(data, userid) {
   //     return { err: 'Username has been taken.' };
   // }
   try {
-    await connection.query("UPDATE users SET ? WHERE id_user = ?", [
-      data,
-      userid,
-    ]);
+    await connection.query(
+      "UPDATE users SET ? WHERE id_user = ?",
+      [data, userid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (err) {
     throw new Error(err);
   }
@@ -592,10 +777,17 @@ export async function modify_profile(data) {
       }
     } else {
       try {
-        await connection.query("UPDATE profiles set ? WHERE id_user = ?", [
-          data,
-          data.id_user,
-        ]);
+        await connection.query(
+          "UPDATE profiles set ? WHERE id_user = ?",
+          [data, data.id_user],
+          (error, result) => {
+            if (error) {
+              return { error: error };
+            } else {
+              return result;
+            }
+          },
+        );
       } catch (err) {
         throw new Error(err);
       }
@@ -616,6 +808,13 @@ export async function modify_location(data) {
     await connection.query(
       "UPDATE profiles set location_lat = ?, location_lon = ?, city = ?,country_name = ?, country_code = ?   WHERE id_user = ?",
       [lat, lon, city, country_name, country_code, data.id_user],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -627,6 +826,13 @@ export async function modifyInterests(data) {
     await connection.query(
       "DELETE FROM users_interests WHERE id_user = ?",
       data.id_user,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -641,6 +847,13 @@ export async function modifyInterests(data) {
         await connection.query(
           " INSERT INTO users_interests (id_user, id_interest) VALUES (?,?)",
           [data.id_user, id_interest[0].id],
+          (error, result) => {
+            if (error) {
+              return { error: error };
+            } else {
+              return result;
+            }
+          },
         );
       } catch (err) {
         throw new Error(err);
@@ -653,11 +866,18 @@ export async function modifyInterests(data) {
 
 export async function checkLike(userid, likerid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT * FROM likes WHERE id_user = ? AND id_sender = ?",
       [userid, likerid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -668,6 +888,13 @@ export async function addLike(userid, likerid) {
     await connection.query(
       "INSERT INTO likes (id_user, id_sender) VALUES (?, ?)",
       [userid, likerid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -679,6 +906,13 @@ export async function addWins(id, userId, chooserId, lostId) {
     await connection.query(
       "INSERT INTO versus_wins (id,chooser_id, user_id, lost_id) VALUES (?, ?, ?, ?)",
       [id, chooserId, userId, lostId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -690,6 +924,13 @@ export async function addLost(id, userId, chooserId, lostId) {
     await connection.query(
       "INSERT INTO versus_losts (id,chooser_id, user_id, win_id) VALUES (?, ?, ?, ?)",
       [id, chooserId, userId, lostId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -698,11 +939,18 @@ export async function addLost(id, userId, chooserId, lostId) {
 
 export async function checkBlock(userid, blockerid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT * FROM blocks WHERE id_user = ? AND id_sender = ?",
       [userid, blockerid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -710,11 +958,18 @@ export async function checkBlock(userid, blockerid) {
 
 export async function checkFake(userid, senderid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT * FROM fakes WHERE id_user = ? AND id_sender = ?",
       [userid, senderid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    // return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -725,6 +980,13 @@ export async function addBlock(userid, blockerid) {
     await connection.query(
       "INSERT INTO blocks (id_user, id_sender) VALUES (?, ?)",
       [userid, blockerid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -733,11 +995,18 @@ export async function addBlock(userid, blockerid) {
 
 export async function countFake(userid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT COUNT(id_user) AS count FROM Fakes WHERE id_user = ?",
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0].count;
+        }
+      },
     );
-    return result[0].count;
+    //return result[0].count;
   } catch (err) {
     throw new Error(err);
   }
@@ -748,6 +1017,13 @@ export async function addFake(id_fakeuserid, senderid) {
     await connection.query(
       "INSERT INTO fakes (id_fake, id_fake,id_user, id_sender) VALUES (?, ?,?)",
       [id_fake, userid, senderid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -759,6 +1035,13 @@ export async function unlike(userid, unlikerid) {
     await connection.query(
       "DELETE FROM likes WHERE id_user = ? AND id_sender = ?;",
       [userid, unlikerid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -767,8 +1050,14 @@ export async function unlike(userid, unlikerid) {
 
 export async function getInterestsList() {
   try {
-    const result = await connection.query("SELECT * FROM interests;");
-    return result;
+    await connection.query("SELECT * FROM interests;", (error, result) => {
+      if (error) {
+        return { error: error };
+      } else {
+        return result;
+      }
+    });
+    // return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -784,6 +1073,13 @@ export async function uploadAvatar(userid, filename) {
       await connection.query(
         "INSERT INTO profiles ( avatar, id_user) VALUES (?, ?)",
         [filename, userid],
+        (error, result) => {
+          if (error) {
+            return { error: error };
+          } else {
+            return result;
+          }
+        },
       );
     } catch (err) {
       throw new Error(err);
@@ -799,6 +1095,13 @@ export async function uploadAvatar(userid, filename) {
       await connection.query(
         "UPDATE profiles SET avatar = ? WHERE id_user = ?",
         [filename, userid],
+        (error, result) => {
+          if (error) {
+            return { error: error };
+          } else {
+            return result;
+          }
+        },
       );
     } catch (err) {
       throw new Error(err);
@@ -808,10 +1111,17 @@ export async function uploadAvatar(userid, filename) {
 
 export async function hibernateAccount(isBlocked, userId) {
   try {
-    await connection.query("UPDATE users SET is_blocked = ? WHERE id = ?", [
-      isBlocked,
-      userId,
-    ]);
+    await connection.query(
+      "UPDATE users SET is_blocked = ? WHERE id = ?",
+      [isBlocked, userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (err) {
     throw new Error(err);
   }
@@ -819,10 +1129,17 @@ export async function hibernateAccount(isBlocked, userId) {
 
 export async function uploadPics(userid, filename) {
   try {
-    await connection.query("INSERT INTO pics ( id_user, path ) VALUES (?, ?)", [
-      userid,
-      filename,
-    ]);
+    await connection.query(
+      "INSERT INTO pics ( id_user, path ) VALUES (?, ?)",
+      [userid, filename],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (err) {
     throw new Error(err);
   }
@@ -834,7 +1151,17 @@ export async function deletePics(path) {
     if (err) console.log(err);
   });
   try {
-    await connection.query("DELETE FROM pics WHERE path = ?", path);
+    await connection.query(
+      "DELETE FROM pics WHERE path = ?",
+      path,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (err) {
     throw new Error(err);
   }
@@ -842,7 +1169,7 @@ export async function deletePics(path) {
 
 export async function getBlockList(userid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       `
             SELECT blocks.id_user, users.firstname, users.lastname,  users.username, users.online, profiles.avatar
             FROM blocks 
@@ -851,8 +1178,15 @@ export async function getBlockList(userid) {
             WHERE blocks.id_sender = ? 
             ORDER BY block_time DESC`,
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -863,6 +1197,13 @@ export async function unBlockUser(userid, blockerid) {
     await connection.query(
       "DELETE FROM blocks WHERE id_user = ? and id_sender = ?",
       [userid, blockerid],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (err) {
     throw new Error(err);
@@ -871,7 +1212,7 @@ export async function unBlockUser(userid, blockerid) {
 
 export async function getVisitList(userid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       `
             SELECT notifications.id_user, notification, notif_time,  users.online, users.username, users.firstname, users.lastname, profiles.avatar
             FROM notifications 
@@ -880,8 +1221,15 @@ export async function getVisitList(userid) {
             WHERE notifications.id_sender = ? AND notifications.notification = 'visits'
             ORDER BY notif_time DESC`,
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -889,7 +1237,7 @@ export async function getVisitList(userid) {
 
 export async function getLikeList(userid) {
   try {
-    const result = await connection.query(
+    await connection.query(
       `
             SELECT notifications.id_user, notification, notif_time,  users.online, users.username, users.firstname, users.lastname, profiles.avatar
             FROM notifications 
@@ -898,8 +1246,15 @@ export async function getLikeList(userid) {
             WHERE notifications.id_sender = ? AND notifications.notification = 'likes'
             ORDER BY notif_time DESC`,
       userid,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    // return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -910,7 +1265,8 @@ export async function deleteUser(userid) {
     //DELETE FROM users WHERE id_user = '${userid}';
     //DELETE FROM profiles WHERE id_user = '${userid}';
 
-    const result = await connection.query(`
+    await connection.query(
+      `
             DELETE FROM blocks WHERE id_user = '${userid}' OR id_sender = '${userid}';
             DELETE FROM chatrooms WHERE id_user_1 = '${userid}' OR id_user_2 = '${userid}';
             DELETE FROM fakes WHERE id_user = '${userid}' OR id_sender = '${userid}';
@@ -922,8 +1278,16 @@ export async function deleteUser(userid) {
             DELETE FROM versus_wins WHERE win_id = '${userid}';
             DELETE FROM versus_wins WHERE lost_id = '${userid}';
              DELETE FROM versus_wins WHERE chooser_id = '${userid}';
-        `);
-    return result;
+        `,
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
+    //return result;
   } catch (err) {
     throw new Error(err);
   }

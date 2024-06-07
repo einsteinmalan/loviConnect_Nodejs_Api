@@ -5,11 +5,18 @@ const uuid = require("uuid");
 export async function createAdmin(userId, type = "admin") {
   const id = uuid.v4();
   try {
-    const result = await connection.query(
+    await connection.query(
       "INSERT INTO admins (id, user_id, type) VALUES (?, ?, ?)",
       [id, userId, type],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
     );
-    return result.insertId;
+    //return result.insertId;
   } catch (error) {
     throw new Error(error);
   }
@@ -17,10 +24,18 @@ export async function createAdmin(userId, type = "admin") {
 
 export async function getAdminById(adminId) {
   try {
-    const result = await connection.query("SELECT * FROM admins WHERE id = ?", [
-      adminId,
-    ]);
-    return result[0];
+    await connection.query(
+      "SELECT * FROM admins WHERE id = ?",
+      [adminId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
+    );
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -28,11 +43,18 @@ export async function getAdminById(adminId) {
 
 export async function getAllAdminsByUserId(userId) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT * FROM admins WHERE user_id = ?",
       [userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (error) {
     throw new Error(error);
   }
@@ -43,6 +65,13 @@ export async function updateAdminById(adminId, newUserId, newType) {
     await connection.query(
       "UPDATE admins SET user_id = ?, type = ? WHERE id = ?",
       [newUserId, newType, adminId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);
@@ -51,7 +80,17 @@ export async function updateAdminById(adminId, newUserId, newType) {
 
 export async function deleteAdminById(adminId) {
   try {
-    await connection.query("DELETE FROM admins WHERE id = ?", [adminId]);
+    await connection.query(
+      "DELETE FROM admins WHERE id = ?",
+      [adminId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (error) {
     throw new Error(error);
   }

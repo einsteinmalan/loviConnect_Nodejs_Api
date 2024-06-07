@@ -116,25 +116,49 @@ const generateRefreshToken = async (user) => {
 
 app.post("auth/token", (req, res) => {
   const { token } = req.body;
-  if (!token) return res.status(401).json({ message: "No token provided" });
+  if (!token)
+    return res.status(401).json({
+      message: "No token provided",
+      status: 401,
+      data: [],
+      error: true,
+    });
 
   jwt.verify(token, process.env.JWT_REFRESH_SECRET, async (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid refresh token" });
+    if (err)
+      return res.status(403).json({
+        message: "Invalid refresh token",
+        status: 403,
+        data: [],
+        error: true,
+      });
 
     const result = await userModel.getUserSessions(token);
     if (result.length === 0) {
-      return res.status(403).json({ message: "Invalid refresh token" });
+      return res.status(403).json({
+        message: "Invalid refresh token",
+        status: 403,
+        data: [],
+        error: true,
+      });
     }
 
     if (result.error) {
-      return res.status(403).json({ message: result.error });
+      return res
+        .status(403)
+        .json({ message: result.error, status: 403, data: [], error: true });
     }
 
     const newAccessToken = generateAccessToken({
       id: user.id,
       phone: user.phone,
     });
-    return res.status(201).json({ accessToken: newAccessToken });
+    return res.status(201).json({
+      accessToken: newAccessToken,
+      status: 201,
+      data: [],
+      error: false,
+    });
   });
 });
 
@@ -153,18 +177,25 @@ app.post("/auth/register", async (req, res) => {
         to: phone,
       })
       .then(() => {
-        res
-          .status(201)
-          .json({ message: "User registered. OTP sent to phone." });
+        res.status(201).json({
+          message: "User registered. OTP sent to phone.",
+          status: 201,
+          data: [],
+          error: false,
+        });
       })
       .catch((err) => {
-        res
-          .status(500)
-          .json({ message: "Error sending OTP", error: err.message });
+        res.status(500).json({
+          message: "Error sending OTP",
+          error: err.message,
+          status: 500,
+          data: [],
+          error: true,
+        });
       });
   } else {
     //Account doesn't exist yet
-    const resultat = await userModel.createUser(fullName);
+    const resultat = await userModel.createUser(fullName, phone);
     if (resultat[0]) {
       client.messages
         .create({
@@ -173,14 +204,21 @@ app.post("/auth/register", async (req, res) => {
           to: phone,
         })
         .then(() => {
-          res
-            .status(201)
-            .json({ message: "User registered. OTP sent to phone." });
+          res.status(201).json({
+            message: "User registered. OTP sent to phone.",
+            status: 201,
+            data: [],
+            error: false,
+          });
         })
         .catch((err) => {
-          res
-            .status(500)
-            .json({ message: "Error sending OTP", error: err.message });
+          res.status(500).json({
+            message: "Error sending OTP",
+            error: err.message,
+            status: 500,
+            data: [],
+            error: true,
+          });
         });
     }
   }
@@ -189,10 +227,19 @@ app.post("/auth/register", async (req, res) => {
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "No token provided" });
+  if (!token)
+    return res.status(401).json({
+      message: "No token provided",
+      status: 401,
+      data: [],
+      error: true,
+    });
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid token" });
+    if (err)
+      return res
+        .status(403)
+        .json({ message: "Invalid token", status: 403, data: [], error: true });
     req.user = user;
     next();
   });

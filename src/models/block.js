@@ -1,44 +1,96 @@
-const connection = require('../config/database');
+const connection = require("../config/database");
+const uuid = require("uuid");
+const id = uuid.v4();
 
 export async function createBlock(userId, senderId) {
-    try {
-        const result = await connection.query('INSERT INTO blocks (id_user, id_sender) VALUES (?, ?)', [userId, senderId]);
-        return result.insertId;
-    } catch (err) {
-        throw new Error(err);
-    }
+  try {
+    const result = await connection.query(
+      "INSERT INTO blocks (id, id_user, id_sender) VALUES (?, ?, ?)",
+      [id, userId, senderId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
+    );
+    //return result.insertId;
+  } catch (err) {
+    throw new Error(err);
+  }
 }
 
 export async function getBlockById(blockId) {
-    try {
-        const result = await connection.query('SELECT * FROM blocks WHERE id_block = ?', [blockId]);
-        return result[0];
-    } catch (err) {
-        throw new Error(err);
-    }
+  try {
+    const result = await connection.query(
+      "SELECT * FROM blocks WHERE id_block = ?",
+      [blockId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
+    );
+    //return result[0];
+  } catch (err) {
+    throw new Error(err);
+  }
 }
 
 export async function getAllBlocksByUserId(userId) {
-    try {
-        const result = await connection.query('SELECT * FROM blocks WHERE id_user = ?', [userId]);
-        return result;
-    } catch (err) {
-        throw new Error(err);
-    }
+  try {
+    const result = await connection.query(
+      "SELECT * FROM blocks WHERE id_user = ?",
+      [userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
+    //return result;
+  } catch (err) {
+    throw new Error(err);
+  }
 }
 
 export async function updateBlockById(blockId, newUserId, newSenderId) {
-    try {
-        await connection.query('UPDATE blocks SET id_user = ?, id_sender = ? WHERE id_block = ?', [newUserId, newSenderId, blockId]);
-    } catch (err) {
-        throw new Error(err);
-    }
+  try {
+    await connection.query(
+      "UPDATE blocks SET id_user = ?, id_sender = ? WHERE id_block = ?",
+      [newUserId, newSenderId, blockId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
+  } catch (err) {
+    throw new Error(err);
+  }
 }
 
 export async function deleteBlockById(blockId) {
-    try {
-        await connection.query('DELETE FROM blocks WHERE id_block = ?', [blockId]);
-    } catch (err) {
-        throw new Error(err);
-    }
+  try {
+    await connection.query(
+      "DELETE FROM blocks WHERE id_block = ?",
+      [blockId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
+  } catch (err) {
+    throw new Error(err);
+  }
 }
