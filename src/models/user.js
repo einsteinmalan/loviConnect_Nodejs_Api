@@ -64,8 +64,15 @@ export async function verifyExistEmail(email) {
     const result = await connection.query(
       "SELECT email, id FROM users WHERE email = ?",
       email.toLowerCase(),
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    // return result;
   } catch (err) {
     throw new Error(err);
   }
@@ -74,8 +81,27 @@ export async function verifyExistEmail(email) {
 export async function verifyExistPhone(phone) {
   try {
     const result = await connection.query(
-      "SELECT phone, id FROM users WHERE phone = ? ",
+      "SELECT phone, id, is_verified FROM users WHERE phone = ? ",
       email.toLowerCase(),
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
+    //   return result;
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function updateUserOtp(otp, userId) {
+  try {
+    const result = await connection.query(
+      "UPDATE users SET otp = ? WHERE id = ? ",
+      [otp, userId],
       (error, result) => {
         if (error) {
           return { error: error };
@@ -432,7 +458,8 @@ export async function createNewProfile(body, zodiac) {
     );
     //return { error: null, data: [] };
   } catch (err) {
-    throw new Error(err);
+    // throw new Error(err);
+    return { error: err };
   }
 }
 
@@ -451,7 +478,8 @@ export async function verifyLink(active_link) {
     );
     //return result.affectedRows;
   } catch (err) {
-    throw new Error(err);
+    //throw new Error(err);
+    return { error: err };
   }
 }
 
@@ -472,7 +500,8 @@ export async function verifyPwdLink(resetpwd_link) {
     //   return result[0].username;
     // }
   } catch (err) {
-    throw new Error(err);
+    //throw new Error(err);
+    return { error: err };
   }
 }
 
@@ -508,11 +537,13 @@ export async function login(data) {
         };
         return user;
       } catch (err) {
-        throw new Error(err);
+        //throw new Error(err);
+        return { error: err };
       }
     }
   } catch (err) {
-    throw new Error(err);
+    //throw new Error(err);
+    return { error: err };
   }
 }
 
@@ -530,7 +561,8 @@ export async function logout(userid) {
       },
     );
   } catch (err) {
-    throw new Error(err);
+    // throw new Error(err);
+    return { error: err };
   }
 }
 

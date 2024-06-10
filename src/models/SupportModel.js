@@ -13,8 +13,15 @@ export async function createSupport(
     await connection.query(
       "INSERT INTO supports (id, user_id, ticket_type_id, complaints, reply, status) VALUES (?, ?, ?, ?, ?, ?)",
       [id, userId, ticketTypeId, complaints, reply, status],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
     );
-    return id;
+    //return id;
   } catch (error) {
     throw new Error(error);
   }
@@ -25,8 +32,15 @@ export async function getSupportById(supportId) {
     const result = await connection.query(
       "SELECT * FROM supports WHERE id = ?",
       [supportId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -37,8 +51,15 @@ export async function getAllSupportsByUserId(userId) {
     const result = await connection.query(
       "SELECT * FROM supports WHERE user_id = ?",
       [userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (error) {
     throw new Error(error);
   }
@@ -63,6 +84,13 @@ export async function updateSupportById(
         newStatus,
         supportId,
       ],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);
@@ -71,7 +99,17 @@ export async function updateSupportById(
 
 export async function deleteSupportById(supportId) {
   try {
-    await connection.query("DELETE FROM supports WHERE id = ?", [supportId]);
+    await connection.query(
+      "DELETE FROM supports WHERE id = ?",
+      [supportId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (error) {
     throw new Error(error);
   }

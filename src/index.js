@@ -69,6 +69,7 @@ const userSettingRoute = require("./routes/UserSettingsRoutes");
 const userInterestRoute = require("./routes/UsersInterestsRoutes");
 const versusWinsRoute = require("./routes/VersusWinsRoutes");
 const { getAccount } = require("./controllers/userController");
+const { error } = require("console");
 
 // routing
 app.use("/users/", userRoute);
@@ -121,7 +122,6 @@ app.post("auth/token", (req, res) => {
       message: "No token provided",
       status: 401,
       data: [],
-      error: true,
     });
 
   jwt.verify(token, process.env.JWT_REFRESH_SECRET, async (err, user) => {
@@ -130,7 +130,6 @@ app.post("auth/token", (req, res) => {
         message: "Invalid refresh token",
         status: 403,
         data: [],
-        error: true,
       });
 
     const result = await userModel.getUserSessions(token);
@@ -139,7 +138,6 @@ app.post("auth/token", (req, res) => {
         message: "Invalid refresh token",
         status: 403,
         data: [],
-        error: true,
       });
     }
 
@@ -157,7 +155,6 @@ app.post("auth/token", (req, res) => {
       accessToken: newAccessToken,
       status: 201,
       data: [],
-      error: false,
     });
   });
 });
@@ -170,58 +167,105 @@ app.post("/auth/register", async (req, res) => {
 
   if (result[0]) {
     //Account exist already
-    client.messages
-      .create({
-        body: `Your OTP for LoviConnect login is ${otp}`,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: phone,
-      })
-      .then(() => {
-        res.status(201).json({
-          message: "User registered. OTP sent to phone.",
-          status: 201,
-          data: [],
-          error: false,
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({
-          message: "Error sending OTP",
-          error: err.message,
-          status: 500,
-          data: [],
-          error: true,
-        });
-      });
-  } else {
-    //Account doesn't exist yet
-    const resultat = await userModel.createUser(fullName, phone);
-    if (resultat[0]) {
+    const res = await userModel.updateUserOtp(otp, result[0].id);
+    if (!res.error) {
       client.messages
         .create({
-          body: `Your OTP for LoviConnect login is ${otp}`,
-          //from: process.env.TWILIO_PHONE_NUMBER,
+          body: `Your OTP for LoviConnect is ${otp}`,
+          from: process.env.TWILIO_PHONE_NUMBER,
           to: phone,
         })
         .then(() => {
           res.status(201).json({
-            message: "User registered. OTP sent to phone.",
+            message: "User created. OTP sent to phone.",
             status: 201,
             data: [],
-            error: false,
           });
         })
         .catch((err) => {
           res.status(500).json({
-            message: "Error sending OTP",
-            error: err.message,
+            message: "Error sending OTP " + err,
             status: 500,
             data: [],
-            error: true,
           });
         });
+    } else {
+      return res.status(500).json({
+        message: "Error sending OTP \n",
+        status: 500,
+        data: [],
+      });
+    }
+  } else {
+    //Account doesn't exist yet
+    const resultat = await userModel.createUser(fullName, phone);
+    if (resultat[0]) {
+      const res = await userModel.updateUserOtp(otp, resultat[0].id);
+      if (!res.error) {
+        client.messages
+          .create({
+            body: `Your OTP for LoviConnect is ${otp}`,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: phone,
+          })
+          .then(() => {
+            res.status(201).json({
+              message: "User registered. OTP sent to phone.",
+              status: 201,
+              data: [],
+            });
+          })
+          .catch((err) => {
+            res.status(500).json({
+              message: "Error sending OTP \n" + err,
+              status: 500,
+              data: [],
+            });
+          });
+      } else {
+        return res.status(500).json({
+          message: "Error sending OTP \n" + error,
+          status: 500,
+          data: [],
+        });
+      }
+    } else {
+      return res.status(500).json({
+        message: "Error creating profile",
+        status: 500,
+        data: [],
+      });
     }
   }
+});
+
+app.post("auth/verify-otp", (req, res) => {
+  const { phone, otp } = req.body;
+  db.query(
+    "SELECT * FROM users WHERE phone = ? AND otp = ?",
+    [phone, otp],
+    (err, results) => {
+      if (err)
+        return res.status(500).json({ message: err, status: 500, data: [] });
+      if (results.length === 0) {
+        return res.status(400).json({
+          message: "Invalid OTP",
+          status: 400,
+          data: [],
+        });
+      }
+      db.query(
+        "UPDATE users SET verified = 1, otp = null WHERE phone = ?",
+        [phone],
+        (err) => {
+          if (err) throw err;
+          res
+            .status(200)
+            .json({ message: "Phone number verified", status: 200, data: [] });
+        },
+      );
+    },
+  );
 });
 
 const authenticateToken = (req, res, next) => {
@@ -232,14 +276,13 @@ const authenticateToken = (req, res, next) => {
       message: "No token provided",
       status: 401,
       data: [],
-      error: true,
     });
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err)
       return res
         .status(403)
-        .json({ message: "Invalid token", status: 403, data: [], error: true });
+        .json({ message: "Invalid token", status: 403, data: [] });
     req.user = user;
     next();
   });
@@ -274,7 +317,7 @@ const authenticateToken = (req, res, next) => {
 //   // res.status(200).send({ phone, hash: fullHash, otp });  // this bypass otp via api only for development instead hitting twilio api all the time
 //   res
 //     .status(200)
-//     .send({ phone, hash: fullHash, statusCode: 200, message: "OTP sent!" }); // Use this way in Production
+//     .send({ phone, hash: fullHash, status: 200, message: "OTP sent!" }); // Use this way in Production
 // });
 
 // app.post("/auth/verifyOTP", async (req, res) => {
@@ -289,7 +332,7 @@ const authenticateToken = (req, res, next) => {
 //   if (now > parseInt(expires)) {
 //     return res.status(504).send({
 //       message: "Timeout. Please try again",
-//       statusCode: 504,
+//       status: 504,
 //       data: [],
 //     });
 //   }
@@ -332,7 +375,7 @@ const authenticateToken = (req, res, next) => {
 //         })
 //         .send({
 //           message: "Device verified",
-//           statusCode: 202,
+//           status: 202,
 //           accountExist: true,
 //           data: [],
 //           error: null,
@@ -370,7 +413,7 @@ const authenticateToken = (req, res, next) => {
 //             })
 //             .send({
 //               message: "Device verified",
-//               statusCode: 202,
+//               status: 202,
 //               data: [],
 //               accountExist: false,
 //               error: null,
@@ -378,7 +421,7 @@ const authenticateToken = (req, res, next) => {
 //         } else {
 //           res.status(400).send({
 //             message: resultat.error,
-//             statusCode: 400,
+//             status: 400,
 //             data: [],
 //             error: resultat.error,
 //           });
@@ -386,7 +429,7 @@ const authenticateToken = (req, res, next) => {
 //       } else {
 //         res.status(400).send({
 //           message: "Bad request",
-//           statusCode: 400,
+//           status: 400,
 //           data: [],
 //           error: "Bad request",
 //         });
@@ -479,7 +522,7 @@ app.get("/generate-fake", (req, res) => {
 const PORT = 3000;
 
 // starting server
-const server = http.listen(PORT, () => {
+const server = http.listen(process.env.PORT, () => {
   console.log(`Node server running on port: ${PORT}`);
 });
 

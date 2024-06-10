@@ -7,8 +7,15 @@ export async function createInviteDatingsQuota(userId, quotaLeft = 0) {
     await connection.query(
       "INSERT INTO invite_datings_quotas (id, user_id, quota_left) VALUES (?, ?, ?)",
       [id, userId, quotaLeft],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
     );
-    return id;
+    //return id;
   } catch (error) {
     throw new Error(error);
   }
@@ -19,8 +26,15 @@ export async function getInviteDatingsQuotaById(quotaId) {
     const result = await connection.query(
       "SELECT * FROM invite_datings_quotas WHERE id = ?",
       [quotaId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -31,8 +45,15 @@ export async function getInviteDatingsQuotaByUserId(userId) {
     const result = await connection.query(
       "SELECT * FROM invite_datings_quotas WHERE user_id = ?",
       [userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -47,6 +68,13 @@ export async function updateInviteDatingsQuotaById(
     await connection.query(
       "UPDATE invite_datings_quotas SET user_id = ?, quota_left = ? WHERE id = ?",
       [newUserId, newQuotaLeft, quotaId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);
@@ -55,9 +83,17 @@ export async function updateInviteDatingsQuotaById(
 
 export async function deleteInviteDatingsQuotaById(quotaId) {
   try {
-    await connection.query("DELETE FROM invite_datings_quotas WHERE id = ?", [
-      quotaId,
-    ]);
+    await connection.query(
+      "DELETE FROM invite_datings_quotas WHERE id = ?",
+      [quotaId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (error) {
     throw new Error(error);
   }

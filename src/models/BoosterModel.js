@@ -79,7 +79,17 @@ export async function updateBoosterById(boosterId, newUserId, newType) {
 
 export async function deleteBoosterById(boosterId) {
   try {
-    await connection.query("DELETE FROM booster WHERE id = ?", [boosterId]);
+    await connection.query(
+      "DELETE FROM booster WHERE id = ?",
+      [boosterId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
+    );
   } catch (error) {
     throw new Error(error);
   }

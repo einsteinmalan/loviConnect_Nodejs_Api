@@ -15,7 +15,7 @@ export async function createFake(userId, senderId) {
         }
       },
     );
-    return id;
+    // return id;
   } catch (error) {
     throw new Error(error);
   }

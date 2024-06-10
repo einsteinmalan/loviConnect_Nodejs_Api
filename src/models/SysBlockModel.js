@@ -19,8 +19,15 @@ export async function getSysBlockById(sysBlockId) {
     const result = await connection.query(
       "SELECT * FROM sys_blocks WHERE id = ?",
       [sysBlockId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -31,8 +38,15 @@ export async function getAllSysBlocksByUserId(userId) {
     const result = await connection.query(
       "SELECT * FROM sys_blocks WHERE id_user = ?",
       [userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (error) {
     throw new Error(error);
   }
@@ -43,6 +57,13 @@ export async function updateSysBlockById(sysBlockId, newUserId, newReason) {
     await connection.query(
       "UPDATE sys_blocks SET id_user = ?, reason = ? WHERE id = ?",
       [newUserId, newReason, sysBlockId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);
@@ -51,7 +72,17 @@ export async function updateSysBlockById(sysBlockId, newUserId, newReason) {
 
 export async function deleteSysBlockById(sysBlockId) {
   try {
-    await connection.query("DELETE FROM sys_blocks WHERE id = ?", [sysBlockId]);
+    await connection.query(
+      "DELETE FROM sys_blocks WHERE id = ?",
+      [sysBlockId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (error) {
     throw new Error(error);
   }

@@ -15,8 +15,15 @@ export async function createUserFilters(
     await connection.query(
       "INSERT INTO user_filters (id, user_id, gender, sexuality, age_start, age_limit, interest, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [id, userId, gender, sexuality, ageStart, ageLimit, interest, location],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
     );
-    return id;
+    //return id;
   } catch (error) {
     throw new Error(error);
   }
@@ -27,8 +34,15 @@ export async function getUserFiltersById(filtersId) {
     const result = await connection.query(
       "SELECT * FROM user_filters WHERE id = ?",
       [filtersId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -39,8 +53,15 @@ export async function getUserFiltersByUserId(userId) {
     const result = await connection.query(
       "SELECT * FROM user_filters WHERE user_id = ?",
       [userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -69,6 +90,13 @@ export async function updateUserFiltersById(
         newLocation,
         filtersId,
       ],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);
@@ -77,9 +105,17 @@ export async function updateUserFiltersById(
 
 export async function deleteUserFiltersById(filtersId) {
   try {
-    await connection.query("DELETE FROM user_filters WHERE id = ?", [
-      filtersId,
-    ]);
+    await connection.query(
+      "DELETE FROM user_filters WHERE id = ?",
+      [filtersId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (error) {
     throw new Error(error);
   }

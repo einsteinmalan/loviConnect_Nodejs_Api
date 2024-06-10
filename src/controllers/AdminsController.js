@@ -6,7 +6,6 @@ export async function createAdmin(req, res) {
   try {
     const adminId = await AdminModel.createAdmin(userId, type);
     res.status(201).json({
-      error: null,
       status: 201,
       message: "Admin created successfully",
       data: { id: adminId },
@@ -14,7 +13,7 @@ export async function createAdmin(req, res) {
   } catch (error) {
     res.status(500).json({
       status: 500,
-      message: "Error creating Admin",
+      message: error,
       error: error.message,
       data: null,
     });
@@ -34,7 +33,7 @@ export async function getAdmin(req, res) {
   } catch (error) {
     res.status(500).json({
       status: 500,
-      message: "Error retrieving Admin",
+      message: error,
       error: error.message,
       data: null,
     });
@@ -54,7 +53,7 @@ export async function getAllAdminsByUser(req, res) {
   } catch (error) {
     res.status(500).json({
       status: 500,
-      message: "Error retrieving Admins",
+      message: error,
       error: error.message,
       data: null,
     });
@@ -91,7 +90,7 @@ export async function deleteAdmin(req, res) {
   } catch (error) {
     res.status(500).json({
       status: 500,
-      message: "Error deleting Admin",
+      message: error,
       error: error.message,
       data: null,
     });

@@ -7,8 +7,15 @@ export async function createGallery(userId, type, image) {
     await connection.query(
       "INSERT INTO galleries (id, id_user, type, image) VALUES (?, ?, ?, ?)",
       [id, userId, type, image],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
     );
-    return id;
+    //return id;
   } catch (error) {
     throw new Error(error);
   }
@@ -19,8 +26,15 @@ export async function getGalleryById(galleryId) {
     const result = await connection.query(
       "SELECT * FROM galleries WHERE id = ?",
       [galleryId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -31,8 +45,15 @@ export async function getAllGalleriesByUserId(userId) {
     const result = await connection.query(
       "SELECT * FROM galleries WHERE id_user = ?",
       [userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    // return result;
   } catch (error) {
     throw new Error(error);
   }
@@ -48,6 +69,13 @@ export async function updateGalleryById(
     await connection.query(
       "UPDATE galleries SET id_user = ?, type = ?, image = ? WHERE id = ?",
       [newUserId, newType, newImage, galleryId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);
@@ -56,7 +84,17 @@ export async function updateGalleryById(
 
 export async function deleteGalleryById(galleryId) {
   try {
-    await connection.query("DELETE FROM galleries WHERE id = ?", [galleryId]);
+    await connection.query(
+      "DELETE FROM galleries WHERE id = ?",
+      [galleryId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (error) {
     throw new Error(error);
   }

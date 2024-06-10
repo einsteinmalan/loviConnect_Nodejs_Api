@@ -44,8 +44,15 @@ export async function createProfile(
         countryName,
         countryCode,
       ],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
     );
-    return id;
+    //return id;
   } catch (error) {
     throw new Error(error);
   }
@@ -56,8 +63,15 @@ export async function getProfileById(profileId) {
     const result = await connection.query(
       "SELECT * FROM profiles WHERE id = ?",
       [profileId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -68,8 +82,15 @@ export async function getAllProfilesByUserId(userId) {
     const result = await connection.query(
       "SELECT * FROM profiles WHERE id_user = ?",
       [userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (error) {
     throw new Error(error);
   }
@@ -114,6 +135,13 @@ export async function updateProfileById(
         newCountryCode,
         profileId,
       ],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);
@@ -122,7 +150,17 @@ export async function updateProfileById(
 
 export async function deleteProfileById(profileId) {
   try {
-    await connection.query("DELETE FROM profiles WHERE id = ?", [profileId]);
+    await connection.query(
+      "DELETE FROM profiles WHERE id = ?",
+      [profileId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (error) {
     throw new Error(error);
   }

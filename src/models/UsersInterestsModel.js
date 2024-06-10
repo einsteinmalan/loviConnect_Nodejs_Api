@@ -7,8 +7,15 @@ export async function createUserInterest(userId, interestId) {
     await connection.query(
       "INSERT INTO users_interests (id, id_user, id_interest) VALUES (?, ?, ?)",
       [id, userId, interestId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
     );
-    return id;
+    // return id;
   } catch (error) {
     throw new Error(error);
   }
@@ -19,8 +26,15 @@ export async function getUserInterestById(userInterestId) {
     const result = await connection.query(
       "SELECT * FROM users_interests WHERE id = ?",
       [userInterestId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -31,8 +45,15 @@ export async function getAllUserInterestsByUserId(userId) {
     const result = await connection.query(
       "SELECT * FROM users_interests WHERE id_user = ?",
       [userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (error) {
     throw new Error(error);
   }
@@ -47,6 +68,13 @@ export async function updateUserInterestById(
     await connection.query(
       "UPDATE users_interests SET id_user = ?, id_interest = ? WHERE id = ?",
       [newUserId, newInterestId, userInterestId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);
@@ -55,9 +83,17 @@ export async function updateUserInterestById(
 
 export async function deleteUserInterestById(userInterestId) {
   try {
-    await connection.query("DELETE FROM users_interests WHERE id = ?", [
-      userInterestId,
-    ]);
+    await connection.query(
+      "DELETE FROM users_interests WHERE id = ?",
+      [userInterestId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (error) {
     throw new Error(error);
   }

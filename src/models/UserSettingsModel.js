@@ -22,8 +22,15 @@ export async function createUserSettings(
         hibernateAccount,
         goIncognito,
       ],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
     );
-    return id;
+    //return id;
   } catch (error) {
     throw new Error(error);
   }
@@ -34,8 +41,15 @@ export async function getUserSettingsById(settingsId) {
     const result = await connection.query(
       "SELECT * FROM user_settings WHERE id = ?",
       [settingsId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -46,8 +60,15 @@ export async function getUserSettingsByUserId(userId) {
     const result = await connection.query(
       "SELECT * FROM user_settings WHERE user_id = ?",
       [userId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -74,6 +95,13 @@ export async function updateUserSettingsById(
         newGoIncognito,
         settingsId,
       ],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);
@@ -82,9 +110,17 @@ export async function updateUserSettingsById(
 
 export async function deleteUserSettingsById(settingsId) {
   try {
-    await connection.query("DELETE FROM user_settings WHERE id = ?", [
-      settingsId,
-    ]);
+    await connection.query(
+      "DELETE FROM user_settings WHERE id = ?",
+      [settingsId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
+    );
   } catch (error) {
     throw new Error(error);
   }

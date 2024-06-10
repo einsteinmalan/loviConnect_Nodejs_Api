@@ -12,10 +12,17 @@ export async function createPersonalityTestQuestion(
 ) {
   try {
     await connection.query(
-      "INSERT INTO personality_test_questions (id,question, type, data-type, choices, version, gender) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO personality_test_questions (id, question, type, data-type, choices, version, gender) VALUES (?, ?, ?, ?, ?, ?, ?)",
       [id, question, type, dataType, JSON.stringify(choices), version, gender],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return id;
+        }
+      },
     );
-    return id;
+    //return id;
   } catch (error) {
     throw new Error(error);
   }
@@ -26,8 +33,15 @@ export async function getPersonalityTestQuestionById(questionId) {
     const result = await connection.query(
       "SELECT * FROM personality_test_questions WHERE id = ?",
       [questionId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result[0];
+        }
+      },
     );
-    return result[0];
+    //return result[0];
   } catch (error) {
     throw new Error(error);
   }
@@ -37,8 +51,15 @@ export async function getAllPersonalityTestQuestions() {
   try {
     const result = await connection.query(
       "SELECT * FROM personality_test_questions",
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
-    return result;
+    //return result;
   } catch (error) {
     throw new Error(error);
   }
@@ -66,6 +87,13 @@ export async function updatePersonalityTestQuestionById(
         newGender,
         questionId,
       ],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);
@@ -77,6 +105,13 @@ export async function deletePersonalityTestQuestionById(questionId) {
     await connection.query(
       "DELETE FROM personality_test_questions WHERE id = ?",
       [questionId],
+      (error, result) => {
+        if (error) {
+          return { error: error };
+        } else {
+          return result;
+        }
+      },
     );
   } catch (error) {
     throw new Error(error);

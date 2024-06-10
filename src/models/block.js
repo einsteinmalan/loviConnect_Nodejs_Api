@@ -23,7 +23,7 @@ export async function createBlock(userId, senderId) {
 
 export async function getBlockById(blockId) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT * FROM blocks WHERE id_block = ?",
       [blockId],
       (error, result) => {
@@ -42,7 +42,7 @@ export async function getBlockById(blockId) {
 
 export async function getAllBlocksByUserId(userId) {
   try {
-    const result = await connection.query(
+    await connection.query(
       "SELECT * FROM blocks WHERE id_user = ?",
       [userId],
       (error, result) => {
