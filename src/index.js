@@ -159,6 +159,45 @@ app.post("auth/token", (req, res) => {
   });
 });
 
+app.post("/auth/resend-otp", async (req, res) => {
+  const { phone } = req.body;
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const result = await userModel.verifyExistPhone(phone);
+
+  if (result[0]) {
+    const res = await userModel.updateUserOtp(otp, result[0].id);
+
+    if (!res.error) {
+      client.messages
+        .create({
+          body: `Your OTP for LoviConnect is ${otp}`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: phone,
+        })
+        .then(() => {
+          res.status(201).json({
+            message: "User created. OTP sent to phone.",
+            status: 201,
+            data: [],
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: "Error sending OTP " + err,
+            status: 500,
+            data: [],
+          });
+        });
+    } else {
+      return res.status(500).json({
+        message: "Error sending OTP \n",
+        status: 500,
+        data: [],
+      });
+    }
+  }
+});
+
 app.post("/auth/register", async (req, res) => {
   const { fullName, phone } = req.body;
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
