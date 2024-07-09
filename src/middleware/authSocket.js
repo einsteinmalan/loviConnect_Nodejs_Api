@@ -34,6 +34,6 @@ const authSockets = async (token) => {
 
     return { id: userId };
   } catch (err) {
-    return { error: "Invalid token" };
+    return { err: "Invalid token" };
   }
 };

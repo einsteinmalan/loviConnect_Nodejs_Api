@@ -1,15 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const BoosterController = require("../controllers/BoosterController");
-const auth = require("../middleware/auth");
+const boosterController = require("../controllers/boosterController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Create Booster
-router.route("/create").post(auth, BoosterController.createBooster);
-
-// Get Booster by ID
-router.route("/:boosterId").get(auth, BoosterController.getBooster);
-
-// Get Boosters by User
-router.get("/user/:userId").get(auth, BoosterController.getBoostersByUser);
+router.post(
+  "/",
+  authMiddleware.authenticateToken,
+  boosterController.createBooster,
+);
+router.get(
+  "/",
+  authMiddleware.authenticateToken,
+  boosterController.getBoosters,
+);
+router.get(
+  "/:id",
+  authMiddleware.authenticateToken,
+  boosterController.getBoosterById,
+);
+router.put(
+  "/:id",
+  authMiddleware.authenticateToken,
+  boosterController.updateBooster,
+);
+router.delete(
+  "/:id",
+  authMiddleware.authenticateToken,
+  boosterController.deleteBooster,
+);
 
 module.exports = router;

@@ -1,15 +1,24 @@
 const express = require("express");
 const router = express.Router();
-const BlockController = require("../controllers/blockController");
-const auth = require("../middleware/auth");
+const blockController = require("../controllers/blockController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Create block
-router.route("/create").post(auth, BlockController.createBlock);
-
-// Get block by ID
-router.route("/:blockId").get(auth, BlockController.getBlock);
-
-// Get all blocks for a user
-router.route("/user/:userId").get(auth, BlockController.getAllBlocksByUser);
+router.post("/", authMiddleware.authenticateToken, blockController.createBlock);
+router.get("/", authMiddleware.authenticateToken, blockController.getBlocks);
+router.get(
+  "/:id_block",
+  authMiddleware.authenticateToken,
+  blockController.getBlockById,
+);
+router.put(
+  "/:id_block",
+  authMiddleware.authenticateToken,
+  blockController.updateBlock,
+);
+router.delete(
+  "/:id_block",
+  authMiddleware.authenticateToken,
+  blockController.deleteBlock,
+);
 
 module.exports = router;

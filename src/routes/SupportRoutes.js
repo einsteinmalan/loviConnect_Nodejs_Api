@@ -1,21 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const SupportController = require("../controllers/SupportController");
-const auth = require("../middleware/auth");
+const supportController = require("../controllers/supportController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Create Support ticket
-router.route("/create").post(auth, SupportController.createSupport);
-
-// Get Support ticket by ID
-router.route("/:supportId").get(auth, SupportController.getSupport);
-
-// Get all Support tickets for a user
-router.route("/user/:userId").get(auth, SupportController.getAllSupportsByUser);
-
-// Update Support ticket
-router.route("/update").post(auth, SupportController.updateSupport);
-
-// Delete Support ticket
-router.route("/delete/:supportId").get(auth, SupportController.deleteSupport);
+router.post(
+  "/",
+  authMiddleware.authenticateToken,
+  supportController.createSupport,
+);
+router.get(
+  "/",
+  authMiddleware.authenticateToken,
+  supportController.getSupports,
+);
+router.get(
+  "/:id",
+  authMiddleware.authenticateToken,
+  supportController.getSupportById,
+);
+router.put(
+  "/:id",
+  authMiddleware.authenticateToken,
+  supportController.updateSupport,
+);
+router.delete(
+  "/:id",
+  authMiddleware.authenticateToken,
+  supportController.deleteSupport,
+);
 
 module.exports = router;

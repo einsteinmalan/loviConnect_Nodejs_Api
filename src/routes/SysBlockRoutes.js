@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const SysBlockController = require("../controllers/SysBlockController");
+const SysBlockController = require("../controllers/sysBlockController");
 const auth = require("../middleware/auth");
 
 // Create System Block

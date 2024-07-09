@@ -1,102 +1,112 @@
-import * as BoosterModel from '../models/BoosterModel';
+const { v4: uuidv4 } = require("uuid");
+const Booster = require("../models/booster");
+const User = require("../models/user");
 
-export async function createBooster(req, res) {
-    const { userId, type } = req.body;
+exports.createBooster = async (req, res) => {
+  const { user_id, type } = req.body;
 
-    try {
-        const boosterId = await BoosterModel.createBooster(userId, type);
-        res.status(201).json({
-            status: 201,
-            message: 'Booster created successfully',
-            data: { id: boosterId }
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 500,
-            message: 'Error creating Booster',
-            error: error.message,
-            data: null
-        });
+  if (!user_id || !type) {
+    return res.status(400).json({ message: "user_id and type are required" });
+  }
+
+  try {
+    const user = await User.findByPk(user_id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-}
 
-export async function getBooster(req, res) {
-    const { boosterId } = req.params;
+    const newBooster = await Booster.create({
+      id: uuidv4(),
+      user_id,
+      type,
+    });
 
-    try {
-        const booster = await BoosterModel.getBoosterById(boosterId);
-        res.status(200).json({
-            status: 200,
-            message: 'Booster retrieved successfully',
-            data: booster
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 500,
-            message: 'Error retrieving Booster',
-            error: error.message,
-            data: null
-        });
+    res.status(201).json(newBooster);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.getBoosters = async (req, res) => {
+  try {
+    const boosters = await Booster.findAll();
+    res.status(200).json(boosters);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.getBoosterById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const booster = await Booster.findByPk(id);
+
+    if (!booster) {
+      return res.status(404).json({ message: "Booster not found" });
     }
-}
 
-export async function getBoostersByUser(req, res) {
-    const { userId } = req.params;
+    res.status(200).json(booster);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
 
-    try {
-        const boosters = await BoosterModel.getBoostersByUserId(userId);
-        res.status(200).json({
-            status: 200,
-            message: 'Boosters retrieved successfully',
-            data: boosters
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 500,
-            message: 'Error retrieving Boosters',
-            error: error.message,
-            data: null
-        });
+exports.updateBooster = async (req, res) => {
+  const { id } = req.params;
+  const { user_id, type } = req.body;
+
+  try {
+    const booster = await Booster.findByPk(id);
+
+    if (!booster) {
+      return res.status(404).json({ message: "Booster not found" });
     }
-}
 
-export async function updateBooster(req, res) {
-    const { boosterId } = req.params;
-    const { newUserId, newType } = req.body;
-
-    try {
-        await BoosterModel.updateBoosterById(boosterId, newUserId, newType);
-        res.status(200).json({
-            status: 200,
-            message: 'Booster updated successfully',
-            data: null
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 500,
-            message: 'Error updating Booster',
-            error: error.message,
-            data: null
-        });
+    if (!user_id || !type) {
+      return res.status(400).json({ message: "user_id and type are required" });
     }
-}
 
-export async function deleteBooster(req, res) {
-    const { boosterId } = req.params;
+    const user = await User.findByPk(user_id);
 
-    try {
-        await BoosterModel.deleteBoosterById(boosterId);
-        res.status(200).json({
-            status: 200,
-            message: 'Booster deleted successfully',
-            data: null
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 500,
-            message: 'Error deleting Booster',
-            error: error.message,
-            data: null
-        });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-}
+
+    if (user_id !== booster.user_id) booster.user_id = user_id;
+    if (type !== booster.type) booster.type = type;
+
+    await booster.save();
+    res.status(200).json(booster);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.deleteBooster = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const booster = await Booster.findByPk(id);
+
+    if (!booster) {
+      return res.status(404).json({ message: "Booster not found" });
+    }
+
+    await booster.destroy();
+    res.status(200).json({ message: "Booster deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};

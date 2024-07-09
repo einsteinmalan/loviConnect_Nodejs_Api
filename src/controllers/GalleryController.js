@@ -1,57 +1,116 @@
-import * as GalleryModel from '../models/GalleryModel';
+const { v4: uuidv4 } = require("uuid");
+const Gallery = require("../models/gallery");
+const User = require("../models/user");
 
-export async function createGallery(req, res) {
-    const { userId, type, image } = req.body;
+exports.createGallery = async (req, res) => {
+  const { id_user, type, image } = req.body;
 
-    try {
-        const galleryId = await GalleryModel.createGallery(userId, type, image);
-        res.status(201).json({ status: 201, message: 'Gallery entry created successfully', data: { id: galleryId } });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error creating Gallery entry', error: error.message, data: null });
+  if (!id_user || !image) {
+    return res.status(400).json({ message: "id_user and image are required" });
+  }
+
+  try {
+    const user = await User.findByPk(id_user);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-}
 
-export async function getGallery(req, res) {
-    const { galleryId } = req.params;
+    const newGallery = await Gallery.create({
+      id: uuidv4(),
+      id_user,
+      type,
+      image,
+    });
 
-    try {
-        const gallery = await GalleryModel.getGalleryById(galleryId);
-        res.status(200).json({ status: 200, message: 'Gallery entry retrieved successfully', data: gallery });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error retrieving Gallery entry', error: error.message, data: null });
+    res.status(201).json(newGallery);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.getGalleries = async (req, res) => {
+  try {
+    const galleries = await Gallery.findAll();
+    res.status(200).json(galleries);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.getGalleryById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const gallery = await Gallery.findByPk(id);
+
+    if (!gallery) {
+      return res.status(404).json({ message: "Gallery not found" });
     }
-}
 
-export async function getAllGalleriesByUser(req, res) {
-    const { userId } = req.params;
+    res.status(200).json(gallery);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
 
-    try {
-        const galleries = await GalleryModel.getAllGalleriesByUserId(userId);
-        res.status(200).json({ status: 200, message: 'Gallery entries retrieved successfully', data: galleries });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error retrieving Gallery entries', error: error.message, data: null });
+exports.updateGallery = async (req, res) => {
+  const { id } = req.params;
+  const { id_user, type, image } = req.body;
+
+  try {
+    const gallery = await Gallery.findByPk(id);
+
+    if (!gallery) {
+      return res.status(404).json({ message: "Gallery not found" });
     }
-}
 
-export async function updateGallery(req, res) {
-    const { galleryId } = req.params;
-    const { newUserId, newType, newImage } = req.body;
-
-    try {
-        await GalleryModel.updateGalleryById(galleryId, newUserId, newType, newImage);
-        res.status(200).json({ status: 200, message: 'Gallery entry updated successfully', data: null });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error updating Gallery entry', error: error.message, data: null });
+    if (!id_user || !image) {
+      return res
+        .status(400)
+        .json({ message: "id_user and image are required" });
     }
-}
 
-export async function deleteGallery(req, res) {
-    const { galleryId } = req.params;
+    const user = await User.findByPk(id_user);
 
-    try {
-        await GalleryModel.deleteGalleryById(galleryId);
-        res.status(200).json({ status: 200, message: 'Gallery entry deleted successfully', data: null });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error deleting Gallery entry', error: error.message, data: null });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-}
+
+    if (id_user !== gallery.id_user) gallery.id_user = id_user;
+    if (type !== gallery.type) gallery.type = type;
+    if (image !== gallery.image) gallery.image = image;
+
+    await gallery.save();
+    res.status(200).json(gallery);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.deleteGallery = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const gallery = await Gallery.findByPk(id);
+
+    if (!gallery) {
+      return res.status(404).json({ message: "Gallery not found" });
+    }
+
+    await gallery.destroy();
+    res.status(200).json({ message: "Gallery deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};

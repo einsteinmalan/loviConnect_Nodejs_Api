@@ -49,26 +49,26 @@ app.use("/support_image", express.static("support_image"));
 const userRoute = require("./routes/userRoute");
 const indexRoute = require("./routes/indexRoute");
 const chatRoute = require("./routes/chatRoute");
-const adminRoute = require("./routes/AdminRoutes");
-const adminSettingRoute = require("./routes/AdminSettingsRoutes");
+const adminRoute = require("./routes/adminRoutes");
+const adminSettingRoute = require("./routes/adminSettingRoutes");
 const blockRoute = require("./routes/blockRoute");
-const boosterRoute = require("./routes/BoosterRoutes");
-const fakeRoute = require("./routes/FakeRoutes");
-const galleryRoute = require("./routes/GalleryRoutes");
-const inviteDatingQuotaRoute = require("./routes/InviteDatingsQuotasRoutes");
-const inviteDatingRoute = require("./routes/InviteDatingsRoutes");
-const personalityTestQuestionRoute = require("./routes/PersonalityTestQuestionRoutes");
-const profileRoute = require("./routes/ProfileRoutes");
-const randomCallQuotaRoute = require("./routes/RandomCallQuotasRoutes");
-const randomCallRoute = require("./routes/RandomCallsRoutes");
-const supportRoute = require("./routes/SupportRoutes");
-const systemBlockRoute = require("./routes/SysBlockRoutes");
-const userFilterRoute = require("./routes/UserFiltersRoutes");
-const userPersonalityTestRoute = require("./routes/UserPersonalityTestRoutes");
-const userSettingRoute = require("./routes/UserSettingsRoutes");
-const userInterestRoute = require("./routes/UsersInterestsRoutes");
-const versusWinsRoute = require("./routes/VersusWinsRoutes");
-const { getAccount } = require("./controllers/userController");
+const boosterRoute = require("./routes/boosterRoutes");
+const fakeRoute = require("./routes/fakeProfileRoutes");
+const galleryRoute = require("./routes/galleryRoutes");
+const inviteDatingQuotaRoute = require("./routes/inviteDatingQuotaRoutes");
+const inviteDatingRoute = require("./routes/inviteDatingRoutes");
+const personalityTestQuestionRoute = require("./routes/personalityTestQuestionRoutes");
+const profileRoute = require("./routes/profileRoutes");
+const randomCallQuotaRoute = require("./routes/randomCallQuotaRoutes");
+const randomCallRoute = require("./routes/randomCallRoutes");
+const supportRoute = require("./routes/supportRoutes");
+const systemBlockRoute = require("./routes/sysBlockRoutes");
+const userFilterRoute = require("./routes/userFilterRoutes");
+const userPersonalityTestRoute = require("./routes/userPersonalityTestRoutes");
+const userSettingRoute = require("./routes/userSettingRoutes");
+const userInterestRoute = require("./routes/userInterestRoutes");
+const versusWinsRoute = require("./routes/versusWinRoutes");
+const { getAccount } = require("./controllers/userController_copy");
 const { error } = require("console");
 
 // routing
@@ -200,80 +200,103 @@ app.post("/auth/resend-otp", async (req, res) => {
 
 app.post("/auth/register", async (req, res) => {
   const { fullName, phone } = req.body;
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  //const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otp = "123456";
+  console.log("Phone", phone);
+  console.log("Fullname", fullName);
 
-  const result = await userModel.verifyExistPhone(phone);
+  //const result = await userModel.verifyExistPhone(phone);
+  const result = { error: "Some error dummy here" };
+  console.log("Result-1", result);
 
-  if (result[0]) {
-    //Account exist already
-    const res = await userModel.updateUserOtp(otp, result[0].id);
-    if (!res.error) {
-      client.messages
-        .create({
-          body: `Your OTP for LoviConnect is ${otp}`,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: phone,
-        })
-        .then(() => {
-          res.status(201).json({
-            message: "User created. OTP sent to phone.",
-            status: 201,
-            data: [],
-          });
-        })
-        .catch((err) => {
-          res.status(500).json({
-            message: "Error sending OTP " + err,
-            status: 500,
-            data: [],
-          });
-        });
-    } else {
-      return res.status(500).json({
-        message: "Error sending OTP \n",
-        status: 500,
-        data: [],
-      });
-    }
+  if (result.error) {
+    return res.status(500).json({
+      message: result.error,
+      status: 500,
+      data: [],
+    });
   } else {
-    //Account doesn't exist yet
-    const resultat = await userModel.createUser(fullName, phone);
-    if (resultat[0]) {
-      const res = await userModel.updateUserOtp(otp, resultat[0].id);
+    if (result[0]) {
+      //Account exist already
+      const res = await userModel.updateUserOtp(otp, result[0].id);
       if (!res.error) {
-        client.messages
-          .create({
-            body: `Your OTP for LoviConnect is ${otp}`,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: phone,
-          })
-          .then(() => {
-            res.status(201).json({
-              message: "User registered. OTP sent to phone.",
-              status: 201,
-              data: [],
-            });
-          })
-          .catch((err) => {
-            res.status(500).json({
-              message: "Error sending OTP \n" + err,
-              status: 500,
-              data: [],
-            });
-          });
+        return res.status(201).json({
+          message: "User created. OTP sent to phone.",
+          status: 201,
+          data: result,
+        });
+        // client.messages
+        //   .create({
+        //     body: `Your OTP for LoviConnect is ${otp}`,
+        //     from: process.env.TWILIO_PHONE_NUMBER,
+        //     to: phone,
+        //   })
+        //   .then(() => {
+        //     res.status(201).json({
+        //       message: "User created. OTP sent to phone.",
+        //       status: 201,
+        //       data: [],
+        //     });
+        //   })
+        //   .catch((err) => {
+        //     res.status(500).json({
+        //       message: "Error sending OTP " + err,
+        //       status: 500,
+        //       data: [],
+        //     });
+        //   });
       } else {
         return res.status(500).json({
-          message: "Error sending OTP \n" + error,
+          message: "Error sending OTP \n",
           status: 500,
           data: [],
         });
       }
     } else {
-      return res.status(500).json({
-        message: "Error creating profile",
-        status: 500,
-        data: [],
-      });
+      //Account doesn't exist yet
+      const resultat = await userModel.createUser(fullName, phone);
+      if (resultat.id) {
+        const res = await userModel.updateUserOtp(otp, resultat[0].id);
+        if (!res.error) {
+          return res.status(201).json({
+            message: "User registered. OTP sent to phone.",
+            status: 201,
+            data: { id: resultat.id },
+          });
+          // client.messages
+          //   .create({
+          //     body: `Your OTP for LoviConnect is ${otp}`,
+          //     from: process.env.TWILIO_PHONE_NUMBER,
+          //     to: phone,
+          //   })
+          //   .then(() => {
+          //     return res.status(201).json({
+          //       message: "User registered. OTP sent to phone.",
+          //       status: 201,
+          //       data: [],
+          //     });
+          //   })
+          //   .catch((err) => {
+          //     res.status(500).json({
+          //       message: "Error sending OTP \n" + err,
+          //       status: 500,
+          //       data: [],
+          //     });
+          //   });
+        } else {
+          return res.status(500).json({
+            message: "Error sending OTP \n" + error,
+            status: 500,
+            data: [],
+          });
+        }
+      } else {
+        return res.status(500).json({
+          message: "Error creating profile",
+          status: 500,
+          data: [],
+        });
+      }
     }
   }
 });

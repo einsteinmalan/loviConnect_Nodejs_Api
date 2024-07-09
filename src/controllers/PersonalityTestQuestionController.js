@@ -1,100 +1,125 @@
-import * as PersonalityTestQuestionModel from '../models/PersonalityTestQuestionModel';
+const { v4: uuidv4 } = require("uuid");
+const PersonalityTestQuestion = require("../models/personalityTestQuestion");
 
-export async function createPersonalityTestQuestion(req, res) {
-    const { question, type, dataType, choices, version, gender } = req.body;
+exports.createPersonalityTestQuestion = async (req, res) => {
+  const { question, type, dataType, choices, version, gender } = req.body;
 
-    try {
-        const questionId = await PersonalityTestQuestionModel.createPersonalityTestQuestion(
-            question, type, dataType, choices, version, gender
-        );
-        res.status(201).json({ status: 201, message: 'Personality test question created successfully', data: { id: questionId } });
-    } catch (error) {
-        res.status(500).json({
-            status: 500,
-            message: 'Error creating Personality test question',
-            error: error.message,
-            data: null
-        });
+  if (!question || !type || !dataType || !choices) {
+    return res
+      .status(400)
+      .json({ message: "question, type, dataType, and choices are required" });
+  }
+
+  try {
+    const newPersonalityTestQuestion = await PersonalityTestQuestion.create({
+      id: uuidv4(),
+      question,
+      type,
+      dataType,
+      choices,
+      version,
+      gender,
+    });
+
+    res.status(201).json(newPersonalityTestQuestion);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.getPersonalityTestQuestions = async (req, res) => {
+  try {
+    const personalityTestQuestions = await PersonalityTestQuestion.findAll();
+    res.status(200).json(personalityTestQuestions);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.getPersonalityTestQuestionById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const personalityTestQuestion = await PersonalityTestQuestion.findByPk(id);
+
+    if (!personalityTestQuestion) {
+      return res
+        .status(404)
+        .json({ message: "Personality test question not found" });
     }
-}
 
-export async function getPersonalityTestQuestion(req, res) {
-    const { questionId } = req.params;
+    res.status(200).json(personalityTestQuestion);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
 
-    try {
-        const question = await PersonalityTestQuestionModel.getPersonalityTestQuestionById(questionId);
-        res.status(200).json({
-            status: 200,
-            message: 'Personality test question retrieved successfully',
-            data: question
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 500,
-            message: 'Error retrieving Personality test question',
-            error: error.message,
-            data: null
-        });
+exports.updatePersonalityTestQuestion = async (req, res) => {
+  const { id } = req.params;
+  const { question, type, dataType, choices, version, gender } = req.body;
+
+  try {
+    const personalityTestQuestion = await PersonalityTestQuestion.findByPk(id);
+
+    if (!personalityTestQuestion) {
+      return res
+        .status(404)
+        .json({ message: "Personality test question not found" });
     }
-}
 
-export async function getAllPersonalityTestQuestions(req, res) {
-    try {
-        const questions = await PersonalityTestQuestionModel.getAllPersonalityTestQuestions();
-        res.status(200).json({
-            status: 200,
-            message: 'Personality test questions retrieved successfully',
-            data: questions
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 500,
-            message: 'Error retrieving Personality test questions',
-            error: error.message,
-            data: null
-        });
+    if (!question || !type || !dataType || !choices) {
+      return res.status(400).json({
+        message: "question, type, dataType, and choices are required",
+      });
     }
-}
 
-export async function updatePersonalityTestQuestion(req, res) {
-    const { questionId } = req.params;
-    const { newQuestion, newType, newDataType, newChoices, newVersion, newGender } = req.body;
+    if (question !== personalityTestQuestion.question)
+      personalityTestQuestion.question = question;
+    if (type !== personalityTestQuestion.type)
+      personalityTestQuestion.type = type;
+    if (dataType !== personalityTestQuestion.dataType)
+      personalityTestQuestion.dataType = dataType;
+    if (choices !== personalityTestQuestion.choices)
+      personalityTestQuestion.choices = choices;
+    if (version !== personalityTestQuestion.version)
+      personalityTestQuestion.version = version;
+    if (gender !== personalityTestQuestion.gender)
+      personalityTestQuestion.gender = gender;
 
-    try {
-        await PersonalityTestQuestionModel.updatePersonalityTestQuestionById(
-            questionId, newQuestion, newType, newDataType, newChoices, newVersion, newGender
-        );
-        res.status(200).json({
-            status: 200,
-            message: 'Personality test question updated successfully',
-            data: null
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 500,
-            message: 'Error updating Personality test question',
-            error: error.message,
-            data: null
-        });
+    await personalityTestQuestion.save();
+    res.status(200).json(personalityTestQuestion);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.deletePersonalityTestQuestion = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const personalityTestQuestion = await PersonalityTestQuestion.findByPk(id);
+
+    if (!personalityTestQuestion) {
+      return res
+        .status(404)
+        .json({ message: "Personality test question not found" });
     }
-}
 
-export async function deletePersonalityTestQuestion(req, res) {
-    const { questionId } = req.params;
-
-    try {
-        await PersonalityTestQuestionModel.deletePersonalityTestQuestionById(questionId);
-        res.status(200).json({
-            status: 200,
-            message: 'Personality test question deleted successfully',
-            data: null
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 500,
-            message: 'Error deleting Personality test question',
-            error: error.message,
-            data: null
-        });
-    }
-}
+    await personalityTestQuestion.destroy();
+    res
+      .status(200)
+      .json({ message: "Personality test question deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};

@@ -1,57 +1,118 @@
-import * as BlockModel from '../models/block';
+const { v4: uuidv4 } = require("uuid");
+const Block = require("../models/block");
+const User = require("../models/user");
 
-export async function createBlock(req, res) {
-    const { userId, senderId } = req.body;
+exports.createBlock = async (req, res) => {
+  const { id_user, id_sender } = req.body;
 
-    try {
-        const blockId = await BlockModel.createBlock(userId, senderId);
-        res.status(201).json({ status: 201, message: 'Block created successfully', data: { id: blockId } });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error creating block', error: error.message, data: null });
+  if (!id_user || !id_sender) {
+    return res
+      .status(400)
+      .json({ message: "id_user and id_sender are required" });
+  }
+
+  try {
+    const user = await User.findByPk(id_user);
+    const sender = await User.findByPk(id_sender);
+
+    if (!user || !sender) {
+      return res.status(404).json({ message: "User or sender not found" });
     }
-}
 
-export async function getBlock(req, res) {
-    const { blockId } = req.params;
+    const newBlock = await Block.create({
+      id_block: uuidv4(),
+      id_user,
+      id_sender,
+    });
 
-    try {
-        const block = await BlockModel.getBlockById(blockId);
-        res.status(200).json({ status: 200, message: 'Block retrieved successfully', data: block });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error retrieving block', error: error.message, data: null });
+    res.status(201).json(newBlock);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.getBlocks = async (req, res) => {
+  try {
+    const blocks = await Block.findAll();
+    res.status(200).json(blocks);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.getBlockById = async (req, res) => {
+  const { id_block } = req.params;
+
+  try {
+    const block = await Block.findByPk(id_block);
+
+    if (!block) {
+      return res.status(404).json({ message: "Block not found" });
     }
-}
 
-export async function getAllBlocksByUser(req, res) {
-    const { userId } = req.params;
+    res.status(200).json(block);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
 
-    try {
-        const blocks = await BlockModel.getAllBlocksByUserId(userId);
-        res.status(200).json({ status: 200, message: 'Blocks retrieved successfully', data: blocks });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error retrieving blocks', error: error.message, data: null });
+exports.updateBlock = async (req, res) => {
+  const { id_block } = req.params;
+  const { id_user, id_sender } = req.body;
+
+  try {
+    const block = await Block.findByPk(id_block);
+
+    if (!block) {
+      return res.status(404).json({ message: "Block not found" });
     }
-}
 
-export async function updateBlock(req, res) {
-    const { blockId } = req.params;
-    const { newUserId, newSenderId } = req.body;
-
-    try {
-        await BlockModel.updateBlockById(blockId, newUserId, newSenderId);
-        res.status(200).json({ status: 200, message: 'Block updated successfully', data: null });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error updating block', error: error.message, data: null });
+    if (!id_user || !id_sender) {
+      return res
+        .status(400)
+        .json({ message: "id_user and id_sender are required" });
     }
-}
 
-export async function deleteBlock(req, res) {
-    const { blockId } = req.params;
+    const user = await User.findByPk(id_user);
+    const sender = await User.findByPk(id_sender);
 
-    try {
-        await BlockModel.deleteBlockById(blockId);
-        res.status(200).json({ status: 200, message: 'Block deleted successfully', data: null });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error deleting block', error: error.message, data: null });
+    if (!user || !sender) {
+      return res.status(404).json({ message: "User or sender not found" });
     }
-}
+
+    if (id_user !== block.id_user) block.id_user = id_user;
+    if (id_sender !== block.id_sender) block.id_sender = id_sender;
+
+    await block.save();
+    res.status(200).json(block);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.deleteBlock = async (req, res) => {
+  const { id_block } = req.params;
+
+  try {
+    const block = await Block.findByPk(id_block);
+
+    if (!block) {
+      return res.status(404).json({ message: "Block not found" });
+    }
+
+    await block.destroy();
+    res.status(200).json({ message: "Block deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};

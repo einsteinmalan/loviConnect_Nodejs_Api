@@ -1,31 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const UserPersonalityTestController = require("../controllers/UserPersonalityTestController");
-const auth = require("../middleware/auth");
+const userPersonalityTestController = require("../controllers/userPersonalityTestController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Create User Personality test
-router
-  .route("/create")
-  .post(auth, UserPersonalityTestController.createUserPersonalityTest);
-
-// Get User Personality test by ID
-router
-  .route("/:testId")
-  .get(auth, UserPersonalityTestController.getUserPersonalityTest);
-
-// Get all User Personality tests for a user
-router
-  .route("/user/:userId")
-  .get(auth, UserPersonalityTestController.getAllUserPersonalityTestsByUser);
-
-// Update User Personality test
-router
-  .route("/update")
-  .post(auth, UserPersonalityTestController.updateUserPersonalityTest);
-
-// Delete User Personality test
-router
-  .route("/delete/:testId")
-  .get(auth, UserPersonalityTestController.deleteUserPersonalityTest);
+router.post(
+  "/",
+  authMiddleware.authenticateToken,
+  userPersonalityTestController.createUserPersonalityTest,
+);
+router.get(
+  "/",
+  authMiddleware.authenticateToken,
+  userPersonalityTestController.getUserPersonalityTests,
+);
+router.get(
+  "/:id",
+  authMiddleware.authenticateToken,
+  userPersonalityTestController.getUserPersonalityTestById,
+);
+router.put(
+  "/:id",
+  authMiddleware.authenticateToken,
+  userPersonalityTestController.updateUserPersonalityTest,
+);
+router.delete(
+  "/:id",
+  authMiddleware.authenticateToken,
+  userPersonalityTestController.deleteUserPersonalityTest,
+);
 
 module.exports = router;

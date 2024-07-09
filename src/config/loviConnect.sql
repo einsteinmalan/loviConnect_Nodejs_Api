@@ -138,6 +138,7 @@ CREATE TABLE  `pics` (
   `id_pic` CHAR(36) NOT NULL PRIMARY KEY ,
   `id_user` CHAR(36) NOT NULL,
   `pic_number` tinyint(1) DEFAULT NULL,
+  `type` ENUM('profile', 'casual', 'dinner', 'work') NOT NULL,
   `path` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -245,10 +246,7 @@ CREATE TABLE  `users` (
   `is_verified` tinyint(1) NOT NULL DEFAULT '0',
   `otp` VARCHAR(6) DEFAULT NULL,
   `creation_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `refreshTokenId` varchar(255) DEFAULT NULL,
-  /* UNIQUE KEY `email` (`email`),
-  UNIQUE KEY `active_link` (`active_link`),
-  UNIQUE KEY `ini_pwd_link` (`ini_pwd_link`) */
+  `refreshTokenId` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ------------------------------------------------------------
@@ -259,7 +257,6 @@ CREATE TABLE `sessions` (
   `id` CHAR(36) NOT NULL PRIMARY KEY ,
   `user_id` INT NOT NULL,
   `refresh_token` VARCHAR(255) NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES users(id)
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -708,10 +705,6 @@ ALTER TABLE `user_filters`
 -- versus_wins
 ALTER TABLE `versus_wins`
   ADD CONSTRAINT `versus_wins_ibfk_1` FOREIGN KEY (`chooser_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;   
-
-
-
-
 
 COMMIT;
 

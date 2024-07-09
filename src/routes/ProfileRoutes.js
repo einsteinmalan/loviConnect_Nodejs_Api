@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ProfileController = require("../controllers/ProfileController");
+const ProfileController = require("../controllers/profileController");
 const auth = require("../middleware/auth");
 
 // Create Profile

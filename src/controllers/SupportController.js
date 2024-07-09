@@ -1,57 +1,124 @@
-import * as SupportModel from '../models/SupportModel';
+const { v4: uuidv4 } = require("uuid");
+const Support = require("../models/support");
+const User = require("../models/user");
+const TicketType = require("../models/ticketType");
 
-export async function createSupport(req, res) {
-    const { userId, ticketTypeId, complaints, reply, status } = req.body;
+exports.createSupport = async (req, res) => {
+  const { user_id, ticket_type_id, complaints, status } = req.body;
 
-    try {
-        const supportId = await SupportModel.createSupport(userId, ticketTypeId, complaints, reply, status);
-        res.status(201).json({ status: 201, message: 'Support ticket created successfully', data: { id: supportId } });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error creating Support ticket', error: error.message, data: null });
+  if (!user_id || !ticket_type_id || !complaints) {
+    return res.status(400).json({
+      message: "user_id, ticket_type_id, and complaints are required",
+    });
+  }
+
+  try {
+    const user = await User.findByPk(user_id);
+    const ticketType = await TicketType.findByPk(ticket_type_id);
+
+    if (!user || !ticketType) {
+      return res.status(404).json({ message: "User or ticket type not found" });
     }
-}
 
-export async function getSupport(req, res) {
-    const { supportId } = req.params;
+    const newSupport = await Support.create({
+      id: uuidv4(),
+      user_id,
+      ticket_type_id,
+      complaints,
+      status,
+    });
 
-    try {
-        const support = await SupportModel.getSupportById(supportId);
-        res.status(200).json({ status: 200, message: 'Support ticket retrieved successfully', data: support });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error retrieving Support ticket', error: error.message, data: null });
+    res.status(201).json(newSupport);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.getSupports = async (req, res) => {
+  try {
+    const supports = await Support.findAll();
+    res.status(200).json(supports);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.getSupportById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const support = await Support.findByPk(id);
+
+    if (!support) {
+      return res.status(404).json({ message: "Support not found" });
     }
-}
 
-export async function getAllSupportsByUser(req, res) {
-    const { userId } = req.params;
+    res.status(200).json(support);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
 
-    try {
-        const supports = await SupportModel.getAllSupportsByUserId(userId);
-        res.status(200).json({ status: 200, message: 'Support tickets retrieved successfully', data: supports });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error retrieving Support tickets', error: error.message, data: null });
+exports.updateSupport = async (req, res) => {
+  const { id } = req.params;
+  const { user_id, ticket_type_id, complaints, status } = req.body;
+
+  try {
+    const support = await Support.findByPk(id);
+
+    if (!support) {
+      return res.status(404).json({ message: "Support not found" });
     }
-}
 
-export async function updateSupport(req, res) {
-    const { supportId } = req.params;
-    const { newUserId, newTicketTypeId, newComplaints, newReply, newStatus } = req.body;
-
-    try {
-        await SupportModel.updateSupportById(supportId, newUserId, newTicketTypeId, newComplaints, newReply, newStatus);
-        res.status(200).json({ status: 200, message: 'Support ticket updated successfully', data: null });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error updating Support ticket', error: error.message, data: null });
+    if (!user_id || !ticket_type_id || !complaints) {
+      return res.status(400).json({
+        message: "user_id, ticket_type_id, and complaints are required",
+      });
     }
-}
 
-export async function deleteSupport(req, res) {
-    const { supportId } = req.params;
+    const user = await User.findByPk(user_id);
+    const ticketType = await TicketType.findByPk(ticket_type_id);
 
-    try {
-        await SupportModel.deleteSupportById(supportId);
-        res.status(200).json({ status: 200, message: 'Support ticket deleted successfully', data: null });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error deleting Support ticket', error: error.message, data: null });
+    if (!user || !ticketType) {
+      return res.status(404).json({ message: "User or ticket type not found" });
     }
-}
+
+    if (user_id !== support.user_id) support.user_id = user_id;
+    if (ticket_type_id !== support.ticket_type_id)
+      support.ticket_type_id = ticket_type_id;
+    if (complaints !== support.complaints) support.complaints = complaints;
+    if (status !== support.status) support.status = status;
+
+    await support.save();
+    res.status(200).json(support);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+exports.deleteSupport = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const support = await Support.findByPk(id);
+
+    if (!support) {
+      return res.status(404).json({ message: "Support not found" });
+    }
+
+    await support.destroy();
+    res.status(200).json({ message: "Support deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
