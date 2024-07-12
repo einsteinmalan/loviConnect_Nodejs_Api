@@ -1,25 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const SysBlockController = require("../controllers/sysBlockController");
-const auth = require("../middleware/auth");
+const sysBlockController = require("../controllers/sysBlockController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Create System Block
-router.route("/create").post(auth, SysBlockController.createSysBlock);
-
-// Get System Block by ID
-router.route("/:sysBlockId").get(auth, SysBlockController.getSysBlock);
-
-// Get all System Blocks for a user
-router
-  .route("/user/:userId")
-  .get(auth, SysBlockController.getAllSysBlocksByUser);
-
-// Update System Block
-router.route("/update").post(auth, SysBlockController.updateSysBlock);
-
-// Delete System Block
-router
-  .route("/delete/:sysBlockId")
-  .get(auth, SysBlockController.deleteSysBlock);
+router.post(
+  "/",
+  authMiddleware.authenticateToken,
+  sysBlockController.createSysBlock,
+);
+router.get(
+  "/",
+  authMiddleware.authenticateToken,
+  sysBlockController.getSysBlocks,
+);
+router.get(
+  "/:id",
+  authMiddleware.authenticateToken,
+  sysBlockController.getSysBlockById,
+);
+router.put(
+  "/:id",
+  authMiddleware.authenticateToken,
+  sysBlockController.updateSysBlock,
+);
+router.delete(
+  "/:id",
+  authMiddleware.authenticateToken,
+  sysBlockController.deleteSysBlock,
+);
 
 module.exports = router;

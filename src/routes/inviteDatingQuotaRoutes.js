@@ -1,30 +1,32 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
+const express = require("express");
+const router = express.Router();
+const inviteDatingQuotaController = require("../controllers/inviteDatingQuotaController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-const Booster = sequelize.define(
-  "Booster",
-  {
-    id: {
-      type: DataTypes.CHAR(36),
-      primaryKey: true,
-    },
-    user_id: {
-      type: DataTypes.CHAR(36),
-      allowNull: false,
-    },
-    type: {
-      type: DataTypes.ENUM("boost", "super_boost"),
-      defaultValue: "boost",
-    },
-    date: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    timestamps: false,
-    tableName: "booster",
-  },
+router.post(
+  "/",
+  authMiddleware.authenticateToken,
+  inviteDatingQuotaController.createInviteDatingQuota,
+);
+router.get(
+  "/",
+  authMiddleware.authenticateToken,
+  inviteDatingQuotaController.getInviteDatingQuotas,
+);
+router.get(
+  "/:id",
+  authMiddleware.authenticateToken,
+  inviteDatingQuotaController.getInviteDatingQuotaById,
+);
+router.put(
+  "/:id",
+  authMiddleware.authenticateToken,
+  inviteDatingQuotaController.updateInviteDatingQuota,
+);
+router.delete(
+  "/:id",
+  authMiddleware.authenticateToken,
+  inviteDatingQuotaController.deleteInviteDatingQuota,
 );
 
-module.exports = Booster;
+module.exports = router;

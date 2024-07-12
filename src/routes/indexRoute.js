@@ -1,10 +1,10 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const indexController = require('../controllers/indexController');
-const auth = require('../middleware/auth');
+const indexController = require("../controllers/indexController");
+const auth = require("../middleware/authMiddleware");
 
-router.route('/getsuggestions').get(auth, indexController.getSuggestions);
-router.route('/search/:searchUserInput').get(auth, indexController.searchUser);
-router.route('/filteruser').post(auth, indexController.filterUser);
+router.route("/getsuggestions").get(auth, indexController.getSuggestions);
+router.route("/search/:searchUserInput").get(auth, indexController.searchUser);
+router.route("/filteruser").post(auth, indexController.filterUser);
 
 module.exports = router;

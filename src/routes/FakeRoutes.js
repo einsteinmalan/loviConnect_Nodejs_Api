@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const fakeController = require("../controllers/fakeControllers");
-const authMiddleware = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middleware/authMiddleware");
 
 router.post("/", authMiddleware.authenticateToken, fakeController.createFake);
 router.get("/", authMiddleware.authenticateToken, fakeController.getFakes);

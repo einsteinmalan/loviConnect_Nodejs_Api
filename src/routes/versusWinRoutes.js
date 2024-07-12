@@ -1,25 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const VersusWinsController = require("../controllers/versusWinController");
-const auth = require("../middleware/auth");
+const versusWinController = require("../controllers/versusWinController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Create Versus Win
-router.route("/create").post(auth, VersusWinsController.createVersusWin);
-
-// Get Versus Win by ID
-router.route("/:versusWinId").get(auth, VersusWinsController.getVersusWin);
-
-// Get Versus Wins by User
-router
-  .route("/user/:userId")
-  .get(auth, VersusWinsController.getVersusWinsByUser);
-
-// Update Versus Win
-router.route("/update").post(auth, VersusWinsController.updateVersusWin);
-
-// Delete Versus Win
-router
-  .route("/delete/:versusWinId")
-  .get(auth, VersusWinsController.deleteVersusWin);
+router.post(
+  "/",
+  authMiddleware.authenticateToken,
+  versusWinController.createVersusWin,
+);
+router.get(
+  "/",
+  authMiddleware.authenticateToken,
+  versusWinController.getVersusWins,
+);
+router.get(
+  "/:id",
+  authMiddleware.authenticateToken,
+  versusWinController.getVersusWinById,
+);
+router.put(
+  "/:id",
+  authMiddleware.authenticateToken,
+  versusWinController.updateVersusWin,
+);
+router.delete(
+  "/:id",
+  authMiddleware.authenticateToken,
+  versusWinController.deleteVersusWin,
+);
 
 module.exports = router;

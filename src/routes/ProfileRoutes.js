@@ -1,21 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const ProfileController = require("../controllers/profileController");
-const auth = require("../middleware/auth");
+const profileController = require("../controllers/profileController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Create Profile
-router.route("/create").post(auth, ProfileController.createProfile);
-
-// Get Profile by ID
-router.route("/:profileId").get(auth, ProfileController.getProfile);
-
-// Get all Profiles for a user
-router.route("/user/:userId").get(auth, ProfileController.getAllProfilesByUser);
-
-// Update Profile
-router.route("/update").post(auth, ProfileController.updateProfile);
-
-// Delete Profile
-router.route("/delete/:profileId").get(auth, ProfileController.deleteProfile);
+router.post(
+  "/",
+  authMiddleware.authenticateToken,
+  profileController.createProfile,
+);
+router.get(
+  "/",
+  authMiddleware.authenticateToken,
+  profileController.getProfiles,
+);
+router.get(
+  "/:id",
+  authMiddleware.authenticateToken,
+  profileController.getProfileById,
+);
+router.put(
+  "/:id",
+  authMiddleware.authenticateToken,
+  profileController.updateProfile,
+);
+router.delete(
+  "/:id",
+  authMiddleware.authenticateToken,
+  profileController.deleteProfile,
+);
 
 module.exports = router;
