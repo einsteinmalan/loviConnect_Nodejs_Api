@@ -118,7 +118,7 @@ CREATE TABLE notifications (
 CREATE TABLE pics (
   id_pic UUID PRIMARY KEY,
   id_user UUID NOT NULL,
-  pic_number SMALLINT,
+  pic_number INTEGER,
   type VARCHAR(255) NOT NULL,
   path VARCHAR(50) NOT NULL
 );

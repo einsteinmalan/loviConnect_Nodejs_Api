@@ -1412,7 +1412,7 @@ const User = sequelize.define(
       defaultValue: DataTypes.NOW,
       allowNull: false,
     },
-    refreshTokenId: {
+    refreshtokenid: {
       type: DataTypes.STRING,
       allowNull: true,
     },

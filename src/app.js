@@ -4,13 +4,13 @@ const sequelize = require("./config/db");
 require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
-const blockRoutes = require("./routes/blockRoutes");
+const blockRoutes = require("./routes/blockRoute");
 const sysBlockRoutes = require("./routes/sysBlockRoutes");
 const chatroomRoutes = require("./routes/chatroomRoutes");
 const fakeProfileRoutes = require("./routes/fakeProfileRoutes");
 const fakeRoutes = require("./routes/fakeRoutes");
 const interestRoutes = require("./routes/interestRoutes");
-const likeRoutes = require("./routes/likeRoutes");
+const likeRoutes = require("./routes/liekRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const picRoutes = require("./routes/picRoutes");
@@ -33,7 +33,7 @@ const userFilterRoutes = require("./routes/userFilterRoutes");
 const versusWinRoutes = require("./routes/versusWinRoutes");
 const proUserRoutes = require("./routes/proUserRoutes");
 const adminSettingRoutes = require("./routes/adminSettingRoutes");
-const userRoutes = require("./routes/userRoutes");
+const userRoutes = require("./routes/userRoute");
 const profileRoutes = require("./routes/profileRoutes");
 
 const app = express();

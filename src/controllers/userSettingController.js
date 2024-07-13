@@ -74,7 +74,7 @@ export async function getUserSettingsByUser(req, res) {
   }
 }
 
-export async function updateUserSettings(req, res) {
+export async function updateUserSettingsById(req, res) {
   const { settingsId } = req.params;
   const {
     newUserId,

@@ -11,7 +11,7 @@ const Pic = sequelize.define("Pic", {
     allowNull: false,
   },
   pic_number: {
-    type: DataTypes.TINYINT,
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
   type: {

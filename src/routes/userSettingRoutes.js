@@ -6,7 +6,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 router.post(
   "/",
   authMiddleware.authenticateToken,
-  userSettingController.createUserSetting,
+  userSettingController.createUserSettings,
 );
 router.get(
   "/",
@@ -16,17 +16,17 @@ router.get(
 router.get(
   "/:id",
   authMiddleware.authenticateToken,
-  userSettingController.getUserSettingById,
+  userSettingController.updateUserSettingsById,
 );
 router.put(
   "/:id",
   authMiddleware.authenticateToken,
-  userSettingController.updateUserSetting,
+  userSettingController.updateUserSettingsById,
 );
 router.delete(
   "/:id",
   authMiddleware.authenticateToken,
-  userSettingController.deleteUserSetting,
+  userSettingController.deleteUserSettings,
 );
 
 module.exports = router;
