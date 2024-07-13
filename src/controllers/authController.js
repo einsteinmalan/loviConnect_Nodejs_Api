@@ -116,6 +116,7 @@ const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
+const generateUsersAndProfiles = require("../utils/generateUsersAndProfiles");
 
 const twilioClient = require("twilio")(
   process.env.TWILIO_ACCOUNT_SID,
@@ -265,6 +266,20 @@ exports.verifyOTP = async (req, res) => {
       status: 500,
       data: {},
     });
+  }
+};
+
+exports.generateUsersAndProfiles = async (req, res) => {
+  try {
+    await generateUsersAndProfiles();
+    res.status(200).json({
+      message:
+        "1000 users, profiles, and fake profiles have been generated successfully.",
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
