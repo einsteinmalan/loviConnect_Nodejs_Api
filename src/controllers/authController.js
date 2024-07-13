@@ -250,8 +250,13 @@ exports.verifyOTP = async (req, res) => {
     res.status(200).json({
       status: 200,
       error: null,
+      message: "Login successfull!",
       // data: user,
-      data: { accessToken: accessToken, refreshToken: refreshToken },
+      data: {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        userId: user.id,
+      },
     });
   } catch (error) {
     res.status(500).json({
@@ -298,7 +303,11 @@ exports.refreshToken = async (req, res) => {
     res.status(200).json({
       status: 200,
       error: null,
-      data: { accessToken: accessToken, refreshToken: refreshToken },
+      data: {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        userId: user.id,
+      },
     });
   } catch (error) {
     res.status(403).json({
