@@ -10,6 +10,13 @@ router.post(
   upload,
   picController.uploadPic,
 );
+
+router.put(
+  "/:id_pic",
+  authMiddleware.authenticateToken,
+  upload,
+  picController.updatePic,
+);
 router.get(
   "/user/:id_user",
   authMiddleware.authenticateToken,

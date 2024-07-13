@@ -119,7 +119,7 @@ CREATE TABLE pics (
   id_pic UUID PRIMARY KEY,
   id_user UUID NOT NULL,
   pic_number INTEGER,
-  type VARCHAR(255) NOT NULL,
+  type VARCHAR(255) NOT NULL, -- work, casual, dinner, profile
   path VARCHAR(50) NOT NULL
 );
 
