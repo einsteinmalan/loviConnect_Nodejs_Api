@@ -7,6 +7,11 @@ router.post("/register-or-login", authController.registerOrLogin);
 router.post("/verify-otp", authController.verifyOTP);
 router.post("/refresh-token", authController.refreshToken);
 router.post(
+  "/fetch-users",
+  authMiddleware.authenticateToken,
+  authController.fetchUsers,
+);
+router.post(
   "/generate-users",
   authMiddleware.authenticateToken,
   authController.generateUsersAndProfiles,
