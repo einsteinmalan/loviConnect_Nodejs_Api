@@ -2,18 +2,23 @@ const express = require("express");
 const router = express.Router();
 const picController = require("../controllers/picController");
 const authMiddleware = require("../middleware/authMiddleware");
+const upload = require("../middleware/upload_user_pics");
 
-router.post("/", authMiddleware.authenticateToken, picController.createPic);
-router.get("/", authMiddleware.authenticateToken, picController.getPics);
+router.post(
+  "/",
+  authMiddleware.authenticateToken,
+  upload,
+  picController.uploadPic,
+);
+router.get(
+  "/user/:id_user",
+  authMiddleware.authenticateToken,
+  picController.getPicsByUserId,
+);
 router.get(
   "/:id_pic",
   authMiddleware.authenticateToken,
   picController.getPicById,
-);
-router.put(
-  "/:id_pic",
-  authMiddleware.authenticateToken,
-  picController.updatePic,
 );
 router.delete(
   "/:id_pic",
