@@ -39,6 +39,13 @@ const profileRoutes = require("./routes/profileRoutes");
 const app = express();
 app.use(bodyParser.json());
 
+// Handling file upload
+app.use("/media-user-pics", express.static("uploads/user_images")); // Serve uploaded user profile images
+app.use("/media-videos", express.static("uploads/storage_videos")); // Serve uploaded videos
+app.use("/media-gallery", express.static("uploads/storage_gallery")); // Serve uploaded user gallery image
+app.use("/media-audios", express.static("uploads/storage_audios")); // Serve uploaded audios
+app.use("/media-ads", express.static("uploads/storage_ads")); // Serve uploaded ads images
+
 app.use("/auth", authRoutes);
 app.use("/blocks", blockRoutes);
 app.use("/sys-blocks", sysBlockRoutes);

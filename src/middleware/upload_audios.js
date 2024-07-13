@@ -3,7 +3,7 @@ const path = require("path");
 
 // Set storage engine
 const storage = multer.diskStorage({
-  destination: "./uploads/user_images/",
+  destination: "./uploads/storage_audios/",
   filename: function (req, file, cb) {
     cb(
       null,
@@ -19,18 +19,18 @@ const upload = multer({
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
   },
-}).single("image");
+}).single("audio");
 
 // Check file type
 function checkFileType(file, cb) {
-  const filetypes = /jpeg|jpg|png|webp/;
+  const filetypes = /m4a|aac|mp3|wav/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = filetypes.test(file.mimetype);
 
   if (mimetype && extname) {
     return cb(null, true);
   } else {
-    cb("Error: Images Only!");
+    cb("Error: audio Only!");
   }
 }
 

@@ -3,7 +3,7 @@ const path = require("path");
 
 // Set storage engine
 const storage = multer.diskStorage({
-  destination: "./uploads/user_images/",
+  destination: "./uploads/storage_videos/",
   filename: function (req, file, cb) {
     cb(
       null,
@@ -15,22 +15,22 @@ const storage = multer.diskStorage({
 // Initialize upload
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5000000 }, // Limit file size to 5MB
+  limits: { fileSize: 20000000 }, // Limit file size to 20MB
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
   },
-}).single("image");
+}).single("video");
 
 // Check file type
 function checkFileType(file, cb) {
-  const filetypes = /jpeg|jpg|png|webp/;
+  const filetypes = /mp4|avi|m4v|mpeg/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = filetypes.test(file.mimetype);
 
   if (mimetype && extname) {
     return cb(null, true);
   } else {
-    cb("Error: Images Only!");
+    cb("Error: video only!");
   }
 }
 
