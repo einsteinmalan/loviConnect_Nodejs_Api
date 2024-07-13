@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const Profile = require("../models/profile");
 const User = require("../models/user");
+const { getZodiacSign, updateUserZodiacSign } = require("../utils/zodiacSign");
 
 exports.createProfile = async (req, res) => {
   const {
@@ -13,17 +14,16 @@ exports.createProfile = async (req, res) => {
     my_expectation,
     location_lat,
     location_lon,
-    zodiac_sign,
     job,
     relationship_status,
     looking_for,
     religion,
-    avatar,
-    fame,
     city,
     country_name,
     country_code,
   } = req.body;
+
+  const zodiac_sign = birthday ? getZodiacSign(birthday) : null;
 
   if (!id_user) {
     return res.status(400).json({ message: "id_user is required" });
@@ -52,12 +52,14 @@ exports.createProfile = async (req, res) => {
       relationship_status,
       looking_for,
       religion,
-      avatar,
-      fame,
       city,
       country_name,
       country_code,
     });
+
+    if (zodiac_sign) {
+      await updateUserZodiacSign(id_user, zodiac_sign);
+    }
 
     res.status(201).json(newProfile);
   } catch (error) {

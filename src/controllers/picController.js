@@ -19,7 +19,12 @@ exports.uploadPic = async (req, res) => {
       path: req.file.path,
     });
 
-    res.status(201).json(pic);
+    res.status(201).json({
+      message: `${type} picture uploaded successfully!`,
+      error: null,
+      status: 201,
+      data: pic,
+    });
   } catch (error) {
     res
       .status(500)
@@ -32,11 +37,20 @@ exports.getPicsByUserId = async (req, res) => {
 
   try {
     const pics = await Pic.findAll({ where: { id_user } });
-    res.status(200).json(pics);
+    res.status(200).json({
+      message: `Pictures retrieved successfully!`,
+      error: null,
+      status: 200,
+      data: pics,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Internal Server Error", error: error.message });
+    res.status(500).json({
+      message: "Internal Server Error",
+      status: 500,
+      error: error.message,
+      message: error.message,
+      data: {},
+    });
   }
 };
 
@@ -47,14 +61,22 @@ exports.getPicById = async (req, res) => {
     const pic = await Pic.findByPk(id_pic);
 
     if (!pic) {
-      return res.status(404).json({ message: "Pic not found" });
+      return res.status(404).json({
+        message: `Pictures not found!`,
+        error: `Pictures not found!`,
+        status: 404,
+        data: {},
+      });
     }
 
     res.status(200).sendFile(path.resolve(pic.path));
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Internal Server Error", error: error.message });
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+      status: 500,
+      data: {},
+    });
   }
 };
 
@@ -65,16 +87,29 @@ exports.deletePic = async (req, res) => {
     const pic = await Pic.findByPk(id_pic);
 
     if (!pic) {
-      return res.status(404).json({ message: "Pic not found" });
+      return res.status(404).json({
+        message: "Pic not found",
+        status: 404,
+        error: "Pics not found",
+        data: {},
+      });
     }
 
     fs.unlinkSync(pic.path);
     await pic.destroy();
-    res.status(200).json({ message: "Pic deleted successfully" });
+    res.status(200).json({
+      message: "Pic deleted successfully",
+      error: null,
+      status: 200,
+      data: {},
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Internal Server Error", error: error.message });
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+      data: {},
+      status: 500,
+    });
   }
 };
 
@@ -90,7 +125,9 @@ exports.updatePic = async (req, res) => {
     const pic = await Pic.findByPk(id_pic);
 
     if (!pic) {
-      return res.status(404).json({ message: "Pic not found" });
+      return res
+        .status(404)
+        .json({ message: "Pic not found", status: 404, data: {} });
     }
 
     // Delete the existing picture file
@@ -104,10 +141,19 @@ exports.updatePic = async (req, res) => {
 
     await pic.save();
 
-    res.status(200).json(pic);
+    res.status(200).json({
+      message: "Pic updated successfully!",
+      status: 200,
+      data: pic,
+    });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Internal Server Error", error: error.message });
+      .json({
+        message: "Internal Server Error",
+        error: error.message,
+        status: 500,
+        data: {},
+      });
   }
 };

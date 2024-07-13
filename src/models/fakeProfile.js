@@ -1,31 +1,19 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
-const InviteDatingQuota = sequelize.define(
-  "InviteDatingQuota",
-  {
-    id: {
-      type: DataTypes.CHAR(36),
-      primaryKey: true,
-    },
-    user_id: {
-      type: DataTypes.CHAR(36),
-      allowNull: false,
-    },
-    quota_left: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-      allowNull: false,
-    },
-    date: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
+const FakeProfile = sequelize.define("FakeProfile", {
+  id: {
+    type: DataTypes.CHAR(36),
+    primaryKey: true,
   },
-  {
-    timestamps: false,
-    tableName: "invite_datings_quotas",
+  id_user: {
+    type: DataTypes.CHAR(36),
+    allowNull: false,
   },
-);
+  create_time: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+});
 
-module.exports = InviteDatingQuota;
+module.exports = FakeProfile;
