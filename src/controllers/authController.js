@@ -236,7 +236,7 @@ exports.fetchUsers = async (req, res) => {
     // Fetch initial random users
     let randomUsers = await fetchRandomUsers(N, []);
 
-    // Apply filtering logic
+    // Apply filtering logic with prioritization
     randomUsers = await applyFilters(req.user, randomUsers);
 
     // Fetch and combine user and profile data

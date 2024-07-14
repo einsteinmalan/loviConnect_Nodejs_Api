@@ -5,7 +5,7 @@ const SysBlock = require("../models/sysBlock");
 const UserFilter = require("../models/userFilter");
 const Booster = require("../models/booster");
 const VersusWin = require("../models/versusWin");
-const Profile = require("../models/profile");
+const ProUser = require("../models/proUser");
 
 async function applyFilters(user, users) {
   const blockedUsers = await Block.findAll({
@@ -29,8 +29,11 @@ async function applyFilters(user, users) {
 
   const boosters = await Booster.findAll();
   const userBooster = boosters.find((b) => b.user_id === user.id);
+  const proUsers = await ProUser.findAll();
+  const proUserIds = proUsers.map((p) => p.user_id);
+  const boosterUserIds = boosters.map((b) => b.user_id);
 
-  return users.filter((u) => {
+  let filteredUsers = users.filter((u) => {
     const isBlocked = blockedUserIds.includes(u.id);
     const isSysBlocked = sysBlockedUserIds.includes(u.id);
     const isVersusWin = versusWinIds.includes(u.id);
@@ -67,6 +70,19 @@ async function applyFilters(user, users) {
       matchesBooster
     );
   });
+
+  // Prioritize users active in pro_users and booster
+  filteredUsers = filteredUsers.sort((a, b) => {
+    const aPriority =
+      (proUserIds.includes(a.id) ? 1 : 0) +
+      (boosterUserIds.includes(a.id) ? 1 : 0);
+    const bPriority =
+      (proUserIds.includes(b.id) ? 1 : 0) +
+      (boosterUserIds.includes(b.id) ? 1 : 0);
+    return bPriority - aPriority;
+  });
+
+  return filteredUsers;
 }
 
 module.exports = applyFilters;
