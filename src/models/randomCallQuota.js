@@ -14,7 +14,7 @@ const RandomCallQuota = sequelize.define(
     },
     quota_left: {
       type: DataTypes.INTEGER,
-      defaultValue: 0,
+      defaultValue: 10,
       allowNull: false,
     },
     date: {
