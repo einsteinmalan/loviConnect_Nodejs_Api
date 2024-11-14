@@ -5,7 +5,7 @@ const TicketType = sequelize.define(
   "TicketType",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       primaryKey: true,
     },
     name: {

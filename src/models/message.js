@@ -3,19 +3,19 @@ const sequelize = require("../config/db");
 
 const Message = sequelize.define("Message", {
   id_message: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     primaryKey: true,
   },
   id_chatroom: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     allowNull: false,
   },
   id_sender: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     allowNull: false,
   },
   id_user: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     allowNull: false,
   },
   time: {

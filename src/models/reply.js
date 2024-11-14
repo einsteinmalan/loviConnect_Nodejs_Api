@@ -5,15 +5,15 @@ const Reply = sequelize.define(
   "Reply",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       primaryKey: true,
     },
     user_id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       allowNull: false,
     },
     support_id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       allowNull: false,
     },
     reply: {

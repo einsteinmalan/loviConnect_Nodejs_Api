@@ -5,19 +5,19 @@ const VersusWin = sequelize.define(
   "VersusWin",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       primaryKey: true,
     },
     win_id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       allowNull: false,
     },
     chooser_id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       allowNull: false,
     },
     lost_id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       allowNull: false,
     },
     date: {

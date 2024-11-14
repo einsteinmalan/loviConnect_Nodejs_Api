@@ -100,15 +100,15 @@ const sequelize = require("../config/db");
 
 const Block = sequelize.define("Block", {
   id_block: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     primaryKey: true,
   },
   id_user: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     allowNull: false,
   },
   id_sender: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     allowNull: false,
   },
   block_time: {

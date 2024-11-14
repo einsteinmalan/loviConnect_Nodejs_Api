@@ -5,15 +5,15 @@ const Support = sequelize.define(
   "Support",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       primaryKey: true,
     },
     user_id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       allowNull: false,
     },
     ticket_type_id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       allowNull: false,
     },
     complaints: {

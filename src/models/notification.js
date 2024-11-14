@@ -3,19 +3,19 @@ const sequelize = require("../config/db");
 
 const Notification = sequelize.define("Notification", {
   id_notif: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     primaryKey: true,
   },
   id_user: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     allowNull: true,
   },
   id_sender: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     allowNull: false,
   },
   notification: {
-    type: DataTypes.STRING(25),
+    type: DataTypes.UUIDV4,
     allowNull: false,
   },
   type: {

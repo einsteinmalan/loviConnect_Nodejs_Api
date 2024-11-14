@@ -1356,7 +1356,7 @@ const User = sequelize.define(
   "User",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       primaryKey: true,
     },
     phone: {

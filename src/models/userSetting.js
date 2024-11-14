@@ -5,7 +5,7 @@ const UserSetting = sequelize.define(
   "UserSetting",
   {
     id: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUIDV4,
       primaryKey: true,
     },
     user_id: {

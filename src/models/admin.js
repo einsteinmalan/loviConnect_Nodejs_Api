@@ -3,11 +3,11 @@ const sequelize = require("../config/db");
 
 const Admin = sequelize.define("Admin", {
   id: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     primaryKey: true,
   },
   user_id: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.UUIDV4,
     allowNull: false,
   },
   type: {
